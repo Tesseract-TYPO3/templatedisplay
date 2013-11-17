@@ -78,6 +78,10 @@
 	position: relative;
 	line-height: 2;
 }
+.mapping_pictogrammBox a,
+.mapping_pictogrammBox a:hover {
+	text-decoration: none !important;
+}
 
 .mapping_pictogramm1{
 	position: absolute;

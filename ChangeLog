@@ -1,3 +1,7 @@
+2013-11-17 Francois Suter (Cobweb)  <typo3@cobweb.ch>
+
+	* Adjusted links underlining in mapping interface, resolves #53714
+
 2013-06-21 Francois Suter (Cobweb)  <typo3@cobweb.ch>
 
 	* Released to TER as version 1.6.0

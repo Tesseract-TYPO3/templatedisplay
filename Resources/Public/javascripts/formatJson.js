@@ -22,7 +22,7 @@ function formatJson(object, level){
 	if(typeof(level) == 'undefined'){
 		level = 0;
     }
-	
+
 	// Defines somes variable
     var INTEND = formatedString = "";
     var NEWLINE = "\n";
@@ -63,6 +63,10 @@ function formatJson(object, level){
 }
 
 function protectJsonString(string){
+	// Escape backslashes (must come first in order not to escape further escapes again!)
+	string = string.replace(/\\/g, '\\\\');
+	// Escape new line markers
 	string = string.replace(/\n/g,"\\n");
+	// Escape double quotes
 	return string.replace(/"/g,"\\\"");
 }

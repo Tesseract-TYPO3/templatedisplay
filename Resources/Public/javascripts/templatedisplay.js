@@ -212,7 +212,7 @@ if (Prototype) {
 				return;
 			}
 
-			// Get the formular value
+			// Get the form value
 			var offset = '';
 			var content = $('templatedisplay_fields').value.split('.');
 			var type = $('templatedisplay_type').value;

@@ -1,6 +1,11 @@
+2014-05-09 Francois Suter (Cobweb)  <typo3@cobweb.ch>
+
+	* Released to TER as version 1.7.0, resolves #58566
+
 2014-05-06 Francois Suter (Cobweb)  <typo3@cobweb.ch>
 
 	* Verified compatibility with TYPO3 CMS 6.2, resolves #58565
+	* Fixed escaping of backslashes in JSON storage of mappings, resolves #58309
 
 2013-11-17 Francois Suter (Cobweb)  <typo3@cobweb.ch>
 

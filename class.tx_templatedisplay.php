@@ -597,6 +597,7 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 						$markers[$matches[$index][0]] = tx_expressions_parser::evaluateExpression($matches[$index][1]);
 					}
 					catch (Exception $e) {
+						$markers[$matches[$index][0]] = 'NULL';
 						$this->controller->addMessage(
 							$this->extKey,
 							'Problem parsing expression "' . $matches[$index][1] . '" (' . $e->getMessage() . ')',

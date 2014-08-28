@@ -1,3 +1,7 @@
+2014-07-28 Francois Suter (Cobweb)  <typo3@cobweb.ch>
+
+	* Released to TER as version 1.7.1, resolves #61237
+
 2014-07-22 Francois Suter (Cobweb)  <typo3@cobweb.ch>
 
 	* Improved handling of unmatched expressions, resolves #60472

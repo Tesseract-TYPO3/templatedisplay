@@ -1,6 +1,7 @@
 2014-11-21 Francois Suter (Cobweb)  <typo3@cobweb.ch>
 
 	* Fixed abusive wrapping of markers in single quotes, resolves #63123
+	* Moved documentation to reStructuredText, resolves #63127
 
 2014-07-28 Francois Suter (Cobweb)  <typo3@cobweb.ch>
 

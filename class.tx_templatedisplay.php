@@ -56,10 +56,14 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 	protected $fieldMarkers = array();
 
 	/**
-	 *
 	 * @var	array	$functions: list of function handled by templatedisplay 'LIMIT', 'UPPERCASE', 'LOWERCASE', 'UPPERCASE_FIRST
 	 */
 	protected $functions = array('FUNCTION', 'LIMIT', 'UPPERCASE', 'LOWERCASE', 'UPPERCASE_FIRST', 'COUNT', 'PRINTF', 'STR_REPLACE', 'STRIPSLASHES');
+
+	/**
+	 * @var array List of numerical markers
+	 */
+	protected $numericalMarkers = array('COUNTER', 'TOTAL_RECORDS', 'SUBTOTAL_RECORDS', 'RECORD_OFFSET', 'START_AT', 'STOP_AT');
 
 	/**
 	 *
@@ -888,20 +892,41 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 	 */
 	protected function preProcessIF($content) {
 
-			// Preprocesses the <!--IF(###MARKER### == '')-->, puts a '' around the marker
+		// Preprocesses the <!--IF(###MARKER### == '')-->, puts a '' around the marker
 		$pattern = '/<!-- *IF *\((.+)\) *-->/isU';
+		$matches = array();
 		if (preg_match_all($pattern, $content, $matches, PREG_SET_ORDER)) {
 			$searches = array();
 			$replacements = array();
-			foreach($matches as $match) {
-				$searches[] = $expression = $match[0];
-				$expressionInner = $match[1]; // actually this is the condition between the bracket
+			foreach ($matches as $match) {
+				$searches[] = $match[0];
+				$expression = $match[0];
+				// This is the condition between the bracket
+				$expressionInner = $match[1];
 
+				// Inside the expression, check which markers should be wrapped in single quotes
 				$pattern = '/#{3}(.+)#{3}/isU';
-				$replacement = "'###$1###'";
-				$_expressionInner = preg_replace($pattern, $replacement, $expressionInner);
-				$replacements[] = str_replace($expressionInner, $_expressionInner, $expression);
+				$subMatches = array();
+				if (preg_match_all($pattern, $expressionInner, $subMatches, PREG_SET_ORDER)) {
+					$subStrings = array();
+					$subReplacements = array();
+					foreach ($subMatches as $subMatch) {
+						$marker = $subMatch[1];
+						$string = $subMatch[0];
+						$subStrings[] = '/' . str_replace(array('(', ')'), array('\(', '\)'), $string) . '/';
+						// If the marker is numerical, leave it as is. If not, wrap it in single quotes.
+						if ($this->isNumericalMarker($marker)) {
+							$replacementString = $string;
+						} else {
+							$replacementString = '\'' . $string . '\'';
+						}
+						$subReplacements[] = $replacementString;
+					}
+					// Replace the markers inside the expression
+					$replacements[] = preg_replace($subStrings, $subReplacements, $expression);
+				}
 			}
+			// Replace all expressions inside the content
 			$content = str_replace($searches, $replacements, $content);
 		}
 		return $content;
@@ -1752,6 +1777,32 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 			}
 		}
 		return $markers;
+	}
+
+	/**
+	 * Checks whether a given marker represents a numerical value or not.
+	 *
+	 * This is based on an internally defined list of markers.
+	 *
+	 * @param $marker
+	 * @return bool
+	 */
+	protected function isNumericalMarker($marker) {
+		$isNumericalMarker = FALSE;
+		// As a first, quick try, match in the array of numerical markers
+		if (in_array($marker, $this->numericalMarkers)) {
+			$isNumericalMarker = TRUE;
+
+		// If it didn't match, try a finer matching, as markers may have modifiers (e.g. TOTAL_RECORDS(foo))
+		} else {
+			foreach ($this->numericalMarkers as $numericalMarker) {
+				if (strpos($marker, $numericalMarker) !== FALSE) {
+					$isNumericalMarker = TRUE;
+					break;
+				}
+			}
+		}
+		return $isNumericalMarker;
 	}
 
 	/**

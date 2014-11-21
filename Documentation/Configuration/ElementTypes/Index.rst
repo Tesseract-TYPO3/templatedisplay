@@ -278,5 +278,29 @@ Description
   field will be automatically stored  **in the “parameter” property** of
   the object.
 
+  Additionally, since version 1.8.0, user functions have a property
+  called :code:`additionalParameters` which is used to pass more parameters
+  to the user function. All items in the :code:`additionalParameters` have
+  :ref:`stdWrap <t3tsref:stdwrap>` capabilities. In particular, this makes
+  it possible to pass data from the record currently being handled.
+
+  **Example:**
+
+  .. code-block:: typoscript
+
+		additionalParameters {
+			currentId.field = uid
+			currentRequest.data = gp:foo
+		}
+
+  Considering the above configuration with the current record having a uid of 42
+  and the GET/POST variable a value of "bar", the following would be available
+  inside the user function:
+
+  .. code-block:: php
+
+		$configuration['additionalParameters.']['currentId'] = 42;
+		$configuration['additionalParameters.']['currentRequest'] = 'bar';
+
 TypoScript Object / function
   :ref:`USER <t3tsref:cobj-user>`

@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2007-2012	Francois Suter (Cobweb) <typo3@cobweb.ch>
+*  (c) 2007-2014	Francois Suter (Cobweb) <typo3@cobweb.ch>
 *					Fabien Udriot <fabien.udriot@ecodev.ch>
 *  All rights reserved
 *
@@ -24,14 +24,12 @@
 ***************************************************************/
 
 /**
- * Plugin 'Data Displayer' for the 'templatedisplay' extension.
+ * Data Consumer for the 'templatedisplay' extension.
  *
  * @author		Francois Suter (Cobweb) <typo3@cobweb.ch>
  * @author		Fabien Udriot <fabien.udriot@ecodev.ch>
  * @package		TYPO3
  * @subpackage	tx_templatedisplay
- *
- * $Id$
  */
 class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 
@@ -1718,11 +1716,29 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 				$output = $this->localCObj->RECORDS($configuration);
 				break;
 			case 'user':
-					// Override configuration as needed
+				// Override configuration as needed
 				if (!isset($configuration['parameter'])) {
 					$configuration['parameter'] = $value;
 				}
-					// Generates the user content
+				// Additional parameters may have stdWrap properties
+				if (isset($configuration['additionalParameters.'])) {
+					foreach ($configuration['additionalParameters.'] as $key => $propertyValue) {
+						$lastCharacter = strrchr($key, '.');
+						// If there's a dot and the last character is a dot, assume stdWrap is used
+						if (strpos($propertyValue, '.') !== FALSE && !empty($lastCharacter)) {
+							$keyWithoutDot = substr($key, 0, -1);
+							$baseValue = (isset($configuration['additionalParameters.'][$keyWithoutDot])) ? $configuration['additionalParameters.'][$keyWithoutDot] : '';
+							// Evaluate stdWrap and replace actual value
+							$configuration['additionalParameters.'][$keyWithoutDot] = $this->localCObj->stdWrap(
+								$baseValue,
+								$configuration['additionalParameters.'][$key]
+							);
+							// Remove stdWrap configuration
+							unset($configuration['additionalParameters.'][$key]);
+						}
+					}
+				}
+				// Generates the user content
 				$output = $this->localCObj->USER($configuration);
 				break;
 			default:

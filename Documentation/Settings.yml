@@ -6,8 +6,8 @@
 conf.py:
   copyright: 2007-2014
   project: Template Display
-  version: 2.3
-  release: 2.3.0
+  version: 1.8
+  release: 1.8.0
   latex_documents:
   - - Index
     - templatedisplay.tex

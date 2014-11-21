@@ -3,6 +3,7 @@
 	* Fixed abusive wrapping of markers in single quotes, resolves #63123
 	* Moved documentation to reStructuredText, resolves #63127
 	* Added possibility to pass additional parameters to user functions, resolves #62641
+	* Released to TER as version 1.8.0, resolves #63128
 
 2014-07-28 Francois Suter (Cobweb)  <typo3@cobweb.ch>
 

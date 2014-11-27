@@ -1,6 +1,7 @@
 2014-11-26 Francois Suter (Cobweb)  <typo3@cobweb.ch>
 
 	* Fixed wrong parsing of IF structures, resolves #63358
+	* Released to TER as version 1.8.1, resolves #63359
 
 2014-11-21 Francois Suter (Cobweb)  <typo3@cobweb.ch>
 

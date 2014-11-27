@@ -883,14 +883,14 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 	}
 
 	/**
-	 * Pre processes the <!--IF(###MARKER### == '')-->, puts a '' around the marker
+	 * Pre processes the <!--IF(###MARKER### == '')-->, puts a '' around the marker, if needed
 	 *
 	 * @param	string	$content HTML code
 	 * @return	string	$content transformed HTML code
 	 */
 	protected function preProcessIF($content) {
 
-		// Preprocesses the <!--IF(###MARKER### == '')-->, puts a '' around the marker
+		// Preprocesses the <!--IF(###MARKER### == '')-->, puts a '' around the marker, if needed
 		$pattern = '/<!-- *IF *\((.+)\) *-->/isU';
 		$matches = array();
 		if (preg_match_all($pattern, $content, $matches, PREG_SET_ORDER)) {
@@ -899,30 +899,33 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 			foreach ($matches as $match) {
 				$searches[] = $match[0];
 				$expression = $match[0];
-				// This is the condition between the bracket
-				$expressionInner = $match[1];
-
-				// Inside the expression, check which markers should be wrapped in single quotes
-				$pattern = '/#{3}(.+)#{3}/isU';
-				$subMatches = array();
-				if (preg_match_all($pattern, $expressionInner, $subMatches, PREG_SET_ORDER)) {
-					$subStrings = array();
-					$subReplacements = array();
-					foreach ($subMatches as $subMatch) {
-						$marker = $subMatch[1];
-						$string = $subMatch[0];
-						$subStrings[] = '/' . str_replace(array('(', ')'), array('\(', '\)'), $string) . '/';
-						// If the marker is numerical, leave it as is. If not, wrap it in single quotes.
-						if ($this->isNumericalMarker($marker)) {
-							$replacementString = $string;
-						} else {
-							$replacementString = '\'' . $string . '\'';
+				// Split the expression along the ### marks (keeping these marks)
+				$expressionParts = preg_split('/(###)/', $expression, -1, PREG_SPLIT_DELIM_CAPTURE);
+				$parsedExpressionParts = array();
+				$notNumericalParts = array();
+				foreach ($expressionParts as $index => $part) {
+					$parsedExpressionParts[$index] = $part;
+					// If the part is not just ###, analyze it further
+					if ($part !== '###') {
+						$subMatches = array();
+						// Get the code of the marker itself
+						if (preg_match('/^([A-Z]+)(\..+)?$/', $part, $subMatches)) {
+							// If it is not a numerical marker, keep it in mind
+							if (!$this->isNumericalMarker($subMatches[1])) {
+								$notNumericalParts[] = $index;
+							}
 						}
-						$subReplacements[] = $replacementString;
+						$parsedExpressionParts[$index] = $part;
 					}
-					// Replace the markers inside the expression
-					$replacements[] = preg_replace($subStrings, $subReplacements, $expression);
 				}
+				// For all non-numerical markers, modify wrapping ### marks to add single quotes
+				foreach ($notNumericalParts as $index) {
+					$parsedExpressionParts[$index - 1] = '\'###';
+					$parsedExpressionParts[$index + 1] = '###\'';
+				}
+				// Reassemble the parsed expression and store it as replacement
+				$parsedExpression = implode('', $parsedExpressionParts);
+				$replacements[] = $parsedExpression;
 			}
 			// Replace all expressions inside the content
 			$content = str_replace($searches, $replacements, $content);

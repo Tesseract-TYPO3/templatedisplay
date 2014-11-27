@@ -1,3 +1,7 @@
+2014-11-26 Francois Suter (Cobweb)  <typo3@cobweb.ch>
+
+	* Fixed wrong parsing of IF structures, resolves #63358
+
 2014-11-21 Francois Suter (Cobweb)  <typo3@cobweb.ch>
 
 	* Fixed abusive wrapping of markers in single quotes, resolves #63123

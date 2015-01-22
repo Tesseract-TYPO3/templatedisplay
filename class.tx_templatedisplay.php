@@ -1026,7 +1026,7 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 			for ($index = 0; $index < $numberOfElements; $index++) {
 				$condition = $matches[2][$index];
 
-				// Exctracts the conditions
+				// Extracts the conditions
 				$expressions = preg_split('/(&&|\|\|)/', $condition, -1 , PREG_SPLIT_DELIM_CAPTURE);
 				$expressions = array_map('trim', $expressions);
 				$evaluation = '';
@@ -1062,15 +1062,21 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 						$operator = $operands[1];
 						$operand2 = $this->sanitizeOperand($operands[2]);
 						$evaluation .= $klammerBegin . $operand1 . $operator . $operand2 . $klammerEnd . ' ' . $logicalOperator . ' ';
-					}
-					else if (count($operands) == 1) {
+					} elseif (count($operands) == 1) {
 						$operand1 = $this->sanitizeOperand($operands[0]);
 						$evaluation .= $klammerBegin . $operand1 . $klammerEnd . ' ' . $logicalOperator . ' ';
 					}
 				}
 
 				if (eval('$result = ' . $evaluation .';') === FALSE) {
-					t3lib_utility_Debug::debug('expression: ' . $evaluation, 'ERROR evaluating, line: ' . __LINE__ . ' file: ' . __FILE__);
+					if ($this->debug) {
+						$this->controller->addMessage(
+							'templatedisplay',
+							sprintf('Error evaluating expression "%s"', $evaluation),
+							'',
+							t3lib_FlashMessage::WARNING
+						);
+					}
 				}
 
 				$searchContent = $matches[0][$index];

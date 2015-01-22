@@ -1,3 +1,7 @@
+2015-01-22 Francois Suter (Cobweb)  <typo3@cobweb.ch>
+
+	* Added alphabetical sorting to mapping fields selector, resolves #64434
+
 2014-11-26 Francois Suter (Cobweb)  <typo3@cobweb.ch>
 
 	* Fixed wrong parsing of IF structures, resolves #63358

@@ -202,7 +202,9 @@ class tx_templatedisplay_tceforms {
 			$options = '';
 			foreach ($fieldsArray as $keyTable => $fields){
 				$options .= '<optgroup label="' . $keyTable . '" class="c-divider">';
-				foreach($fields['fields'] as $keyField => $field){
+				$fieldList = $fields['fields'];
+				ksort($fieldList);
+				foreach($fieldList as $keyField => $field){
 					$options .= '<option value="' . $keyTable . '.' . $keyField . '">' . $keyField . '</option>';
 				}
 				$options .= '</optgroup>';

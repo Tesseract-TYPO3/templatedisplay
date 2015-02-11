@@ -1575,195 +1575,211 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 		} else {
 			$configuration = $baseConfiguration;
 		}
-			// Render element based on type
-		switch ($datasource['type']) {
-			case 'raw':
-				$output = $value;
-				break;
-			case 'text':
+		// Render element based on type
+		try {
+			switch ($datasource['type']) {
+				case 'raw':
+					$output = $value;
+					break;
+				case 'text':
 					// Override configuration as needed
-				if (!isset($configuration['value'])) {
-					$configuration['value'] = $value;
-				}
+					if (!isset($configuration['value'])) {
+						$configuration['value'] = $value;
+					}
 
-				$output = $this->localCObj->TEXT($configuration);
-				break;
-			case 'richtext':
+					$output = $this->localCObj->TEXT($configuration);
+					break;
+				case 'richtext':
 					// Override configuration as needed
-				if (!isset($configuration['value'])) {
-					$configuration['value'] = $value;
-				}
+					if (!isset($configuration['value'])) {
+						$configuration['value'] = $value;
+					}
 
-				$output = $this->localCObj->TEXT($configuration);
-				break;
-			case 'image':
+					$output = $this->localCObj->TEXT($configuration);
+					break;
+				case 'image':
 					// Override configuration as needed
-				if (!isset($configuration['file'])) {
-					$configuration['file'] = $value;
-				}
+					if (!isset($configuration['file'])) {
+						$configuration['file'] = $value;
+					}
 
 					// Sets the alt attribute
-				if (!isset($configuration['altText'])) {
+					if (!isset($configuration['altText'])) {
 						// Gets the file name
-					$configuration['altText'] = $this->getFileName($configuration['file']);
-				} else {
-					$configuration['altText'] = $this->localCObj->stdWrap($configuration['altText'], $configuration['altText.']);
-				}
+						$configuration['altText'] = $this->getFileName($configuration['file']);
+					} else {
+						$configuration['altText'] = $this->localCObj->stdWrap($configuration['altText'], $configuration['altText.']);
+					}
 
 					// Sets the title attribute
-				if (!isset($configuration['titleText'])) {
+					if (!isset($configuration['titleText'])) {
 						// Gets the file name
-					$configuration['titleText'] = $this->getFileName($configuration['file']);
-				} else {
-					$configuration['titleText'] = $this->localCObj->stdWrap($configuration['titleText'], $configuration['titleText.']);
-				}
+						$configuration['titleText'] = $this->getFileName($configuration['file']);
+					} else {
+						$configuration['titleText'] = $this->localCObj->stdWrap($configuration['titleText'], $configuration['titleText.']);
+					}
 
-				$output = $this->localCObj->IMAGE($configuration);
-				if (empty($output)) {
-					$this->controller->addMessage(
-						$this->extKey,
-						'Image not found for marker: ' . $datasource['marker'],
-						'',
-						t3lib_FlashMessage::WARNING,
-						$configuration
-					);
-				}
-				break;
-			case 'imageResource':
+					$output = $this->localCObj->IMAGE($configuration);
+					if (empty($output)) {
+						$this->controller->addMessage(
+							$this->extKey,
+							'Image not found for marker: ' . $datasource['marker'],
+							'',
+							t3lib_FlashMessage::WARNING,
+							$configuration
+						);
+					}
+					break;
+				case 'imageResource':
 					// Override configuration as needed
-				if (!isset($configuration['file'])) {
-					$configuration['file'] = $value;
-				}
-				$output = $this->localCObj->IMG_RESOURCE($configuration);
-				break;
-			case 'media':
+					if (!isset($configuration['file'])) {
+						$configuration['file'] = $value;
+					}
+					$output = $this->localCObj->IMG_RESOURCE($configuration);
+					break;
+				case 'media':
 					// Override configuration as needed
-				if (!isset($configuration['file'])) {
-					$configuration['file'] = $value;
-				}
+					if (!isset($configuration['file'])) {
+						$configuration['file'] = $value;
+					}
 					// Make sure to have a type (default to video)
-				if (!isset($configuration['type'])) {
-					$configuration['type'] = 'video';
-				}
+					if (!isset($configuration['type'])) {
+						$configuration['type'] = 'video';
+					}
 					// Make sure to have a render type (default to auto)
-				if (!isset($configuration['renderType'])) {
-					$configuration['renderType'] = 'auto';
-				}
-				$output = $this->localCObj->MEDIA($configuration);
-				break;
-			case 'files':
-				// NOTE: there's no default configuration that would make sense in this case
-				$output = $this->localCObj->FILES($configuration);
-				break;
-			case 'linkToDetail':
+					if (!isset($configuration['renderType'])) {
+						$configuration['renderType'] = 'auto';
+					}
+					$output = $this->localCObj->MEDIA($configuration);
+					break;
+				case 'files':
+					// NOTE: there's no default configuration that would make sense in this case
+					$output = $this->localCObj->FILES($configuration);
+					break;
+				case 'linkToDetail':
 					// Override configuration as needed
-				if (!isset($configuration['useCacheHash'])) {
-					$configuration['useCacheHash'] = 1;
-				}
-				if (!isset($configuration['returnLast'])) {
-					$configuration['returnLast'] = 'url';
-				}
+					if (!isset($configuration['useCacheHash'])) {
+						$configuration['useCacheHash'] = 1;
+					}
+					if (!isset($configuration['returnLast'])) {
+						$configuration['returnLast'] = 'url';
+					}
 
-				$additionalParams = '&' . $this->controller->getPrefixId() . '[table]=' . $sds['trueName'] . '&' . $this->controller->getPrefixId() .'[showUid]=' . $value;
-				$configuration['additionalParams'] = $additionalParams . $this->localCObj->stdWrap($configuration['additionalParams'], $configuration['additionalParams.']);
+					$additionalParams = '&' . $this->controller->getPrefixId() . '[table]=' . $sds['trueName'] . '&' . $this->controller->getPrefixId() . '[showUid]=' . $value;
+					$configuration['additionalParams'] = $additionalParams . $this->localCObj->stdWrap($configuration['additionalParams'], $configuration['additionalParams.']);
 
 					// Generates the link
-				$output = $this->localCObj->typolink('',$configuration);
-				break;
-			case 'linkToPage':
+					$output = $this->localCObj->typolink('', $configuration);
+					break;
+				case 'linkToPage':
 					// Override configuration as needed
-				if (!isset($configuration['useCacheHash'])) {
-					$configuration['useCacheHash'] = 1;
-				}
+					if (!isset($configuration['useCacheHash'])) {
+						$configuration['useCacheHash'] = 1;
+					}
 
 					// Defines parameter
-				if (!isset($configuration['parameter'])) {
-					$configuration['parameter'] = $value;
-				}
+					if (!isset($configuration['parameter'])) {
+						$configuration['parameter'] = $value;
+					}
 
-				if (!isset($configuration['returnLast'])) {
-					$configuration['returnLast'] = 'url';
-				}
-				$configuration['additionalParams'] = $this->localCObj->stdWrap($configuration['additionalParams'], $configuration['additionalParams.']);
+					if (!isset($configuration['returnLast'])) {
+						$configuration['returnLast'] = 'url';
+					}
+					$configuration['additionalParams'] = $this->localCObj->stdWrap($configuration['additionalParams'], $configuration['additionalParams.']);
 
 					// Generates the link
-				$output = $this->localCObj->typolink('',$configuration);
-				break;
-			case 'linkToFile':
+					$output = $this->localCObj->typolink('', $configuration);
+					break;
+				case 'linkToFile':
 					// Override configuration as needed
-				if (!isset($configuration['useCacheHash'])) {
-					$configuration['useCacheHash'] = 1;
-				}
+					if (!isset($configuration['useCacheHash'])) {
+						$configuration['useCacheHash'] = 1;
+					}
 
-				if (!isset($configuration['returnLast'])) {
-					$configuration['returnLast'] = 'url';
-				}
+					if (!isset($configuration['returnLast'])) {
+						$configuration['returnLast'] = 'url';
+					}
 
-				if (!isset($configuration['parameter'])) {
-					$configuration['parameter'] = $value;
-				}
+					if (!isset($configuration['parameter'])) {
+						$configuration['parameter'] = $value;
+					}
 
 					// Replaces white spaces in filename
-				$configuration['parameter'] = str_replace(' ','%20',$configuration['parameter']);
+					$configuration['parameter'] = str_replace(' ', '%20', $configuration['parameter']);
 
 					// Generates the link
-				$output = $this->localCObj->typolink('',$configuration);
-				break;
-			case 'email':
+					$output = $this->localCObj->typolink('', $configuration);
+					break;
+				case 'email':
 					// Override configuration as needed
-				if (!isset($configuration['parameter'])) {
-					$configuration['parameter'] = $value;
-				}
+					if (!isset($configuration['parameter'])) {
+						$configuration['parameter'] = $value;
+					}
 					// Generates the email
-				$output = $this->localCObj->typolink('',$configuration);
-				break;
-			case 'records':
+					$output = $this->localCObj->typolink('', $configuration);
+					break;
+				case 'records':
 					// Override configuration as needed
-				if (!isset($configuration['source'])) {
-					$configuration['source'] = $value;
-				}
-				$output = $this->localCObj->RECORDS($configuration);
-				break;
-			case 'user':
-				// Override configuration as needed
-				if (!isset($configuration['parameter'])) {
-					$configuration['parameter'] = $value;
-				}
-				// Additional parameters may have stdWrap properties
-				if (isset($configuration['additionalParameters.'])) {
-					foreach ($configuration['additionalParameters.'] as $key => $propertyValue) {
-						$lastCharacter = strrchr($key, '.');
-						// If there's a dot and the last character is a dot, assume stdWrap is used
-						if (strpos($propertyValue, '.') !== FALSE && !empty($lastCharacter)) {
-							$keyWithoutDot = substr($key, 0, -1);
-							$baseValue = (isset($configuration['additionalParameters.'][$keyWithoutDot])) ? $configuration['additionalParameters.'][$keyWithoutDot] : '';
-							// Evaluate stdWrap and replace actual value
-							$configuration['additionalParameters.'][$keyWithoutDot] = $this->localCObj->stdWrap(
-								$baseValue,
-								$configuration['additionalParameters.'][$key]
-							);
-							// Remove stdWrap configuration
-							unset($configuration['additionalParameters.'][$key]);
+					if (!isset($configuration['source'])) {
+						$configuration['source'] = $value;
+					}
+					$output = $this->localCObj->RECORDS($configuration);
+					break;
+				case 'user':
+					// Override configuration as needed
+					if (!isset($configuration['parameter'])) {
+						$configuration['parameter'] = $value;
+					}
+					// Additional parameters may have stdWrap properties
+					if (isset($configuration['additionalParameters.'])) {
+						foreach ($configuration['additionalParameters.'] as $key => $propertyValue) {
+							$lastCharacter = strrchr($key, '.');
+							// If there's a dot and the last character is a dot, assume stdWrap is used
+							if (strpos($propertyValue, '.') !== FALSE && !empty($lastCharacter)) {
+								$keyWithoutDot = substr($key, 0, -1);
+								$baseValue = (isset($configuration['additionalParameters.'][$keyWithoutDot])) ? $configuration['additionalParameters.'][$keyWithoutDot] : '';
+								// Evaluate stdWrap and replace actual value
+								$configuration['additionalParameters.'][$keyWithoutDot] = $this->localCObj->stdWrap(
+									$baseValue,
+									$configuration['additionalParameters.'][$key]
+								);
+								// Remove stdWrap configuration
+								unset($configuration['additionalParameters.'][$key]);
+							}
 						}
 					}
-				}
-				// Generates the user content
-				$output = $this->localCObj->USER($configuration);
-				break;
-			default:
+					// Generates the user content
+					$output = $this->localCObj->USER($configuration);
+					break;
+				default:
 					// Not a standard type, check if it matches a custom one
-				if (isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['templatedisplay']['types'][$datasource['type']]['class'])) {
-					$class = t3lib_div::makeInstance($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['templatedisplay']['types'][$datasource['type']]['class']);
-					$output = $class->render($value, $configuration, $this);
-				} else {
-					$this->controller->addMessage(
-						$this->extKey,
-						'Unknow object type "' . $datasource['type'] . '" for marker: ' . $datasource['marker'],
-						'',
-						t3lib_FlashMessage::ERROR
-					);
-				}
-		} // end switch
+					if (isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['templatedisplay']['types'][$datasource['type']]['class'])) {
+						$class = t3lib_div::makeInstance($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['templatedisplay']['types'][$datasource['type']]['class']);
+						$output = $class->render($value, $configuration, $this);
+					} else {
+						$this->controller->addMessage(
+							$this->extKey,
+							'Unknow object type "' . $datasource['type'] . '" for marker: ' . $datasource['marker'],
+							'',
+							t3lib_FlashMessage::ERROR
+						);
+					}
+			} // end switch
+		}
+		catch (Exception $e) {
+			$this->controller->addMessage(
+				$this->extKey,
+				sprintf(
+					'Marker ###%s### could not be rendered properly. Following exception occurred: %s (%d)',
+					$datasource['marker'],
+					$e->getMessage(),
+					$e->getCode()
+				),
+				'Rendering error',
+				t3lib_FlashMessage::WARNING,
+				$configuration
+			);
+		}
 
 		return $output;
 	}

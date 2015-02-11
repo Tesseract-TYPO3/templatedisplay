@@ -1,3 +1,7 @@
+2015-02-11 Francois Suter (Cobweb)  <typo3@cobweb.ch>
+
+	* Added catching of rendering exceptions, resolves #65010
+
 2015-01-22 Francois Suter (Cobweb)  <typo3@cobweb.ch>
 
 	* Added alphabetical sorting to mapping fields selector, resolves #64434

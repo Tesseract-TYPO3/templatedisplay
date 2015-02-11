@@ -1,6 +1,7 @@
 2015-02-11 Francois Suter (Cobweb)  <typo3@cobweb.ch>
 
 	* Added catching of rendering exceptions, resolves #65010
+	* Released to TER as version 1.8.2, resolves #65011
 
 2015-01-22 Francois Suter (Cobweb)  <typo3@cobweb.ch>
 

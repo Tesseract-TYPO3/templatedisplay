@@ -112,10 +112,9 @@ if (Prototype) {
 						$$('#templatedisplay_html div')[0].removeClassName('templatedisplay_hidden');
 
 						// Sends the content in an Ajax request
-						new Ajax.Request("ajax.php", {
+						new Ajax.Request(TYPO3.settings.ajaxUrls['templatedisplay::saveTemplate'], {
 							method: "post",
 							parameters: {
-								"ajaxID": "templatedisplay::saveTemplate",
 								"uid" : tx_templatedisplay_uid,
 								"template" : $('templatedisplay_htmlContent').value
 							},
@@ -240,10 +239,9 @@ if (Prototype) {
 			$('templatedisplay_json').value = formatJson(records);
 
 			// Sends the content in an Ajax request
-			new Ajax.Request("ajax.php", {
+			new Ajax.Request(TYPO3.settings.ajaxUrls['templatedisplay::saveConfiguration'], {
 				method: "post",
 				parameters: {
-					"ajaxID": "templatedisplay::saveConfiguration",
 					"uid" : tx_templatedisplay_uid,
 					"mappings" : $('templatedisplay_json').value
 				},

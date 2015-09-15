@@ -124,7 +124,7 @@ $Id$
 				# Name of the field containing the file relations
 				fieldName = field_foo
 				# Most likely the uid of the current record
-				uid.data = uid
+				uid.field = uid
 			}
 			renderObj = IMAGE
 			renderObj {

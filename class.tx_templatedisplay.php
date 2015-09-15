@@ -302,6 +302,10 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 			}
 		}
 
+		// Global markers are replaced first, so that they are available outise of any loop
+		$globalVariablesMarkers = $this->getGlobalVariablesMarkers($templateCode);
+		$templateCode = t3lib_parsehtml::substituteMarkerArray($templateCode, $globalVariablesMarkers);
+
 		// Begins $templateCode transformation.
 		// *Must* be at the beginning of startProcess()
 		$templateCode = $this->checkPageStatus($templateCode);
@@ -310,17 +314,16 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 		$templateCode = $this->preProcessFUNCTIONS($templateCode);
 		$templateCode = $this->processLOOP($templateCode); // Adds a LOOP marker of first level, if it does not exist.
 
-			// Handles possible marker: ###LLL:EXT:myextension/localang.xml:myLable###, ###GP:###, ###TSFE:### etc...
+		// Handles possible marker: ###LLL:EXT:myextension/localang.xml:myLable###, ###GP:###, ###TSFE:### etc...
 		$LLLMarkers = $this->getLLLMarkers($templateCode);
 		$expressionMarkers = $this->getAllExpressionMarkers($templateCode);
 		$sortMarkers = $this->getSortMarkers($templateCode);
 		$filterMarkers = $this->getFilterMarkers($templateCode);
-		$globalVariablesMarkers = $this->getGlobalVariablesMarkers($templateCode); // Global template variable can be ###TOTAL_RECORDS### ###SUBTOTAL_RECORDS###
 
-			// Merges array, in order to have only one array (performance!)
-		$markers = array_merge($uniqueMarkers, $LLLMarkers, $expressionMarkers, $sortMarkers, $filterMarkers, $globalVariablesMarkers);
+		// Merges array, in order to have only one array (performance!)
+		$markers = array_merge($uniqueMarkers, $LLLMarkers, $expressionMarkers, $sortMarkers, $filterMarkers);
 
-			// First transformation of $templateCode. Substitutes $markers that can be already substituted. (LLL, GP, TSFE, etc...)
+		// First transformation of $templateCode. Substitutes $markers that can be already substituted. (LLL, GP, TSFE, etc...)
 		$templateCode = t3lib_parsehtml::substituteMarkerArray($templateCode, $markers);
 
 			// Cuts out the template into different part and organizes it in an array.

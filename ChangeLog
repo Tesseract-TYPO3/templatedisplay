@@ -1,6 +1,7 @@
 2015-09-15 Francois Suter (Cobweb)  <typo3@cobweb.ch>
 
 	* Fixed wrong TS property in FAL references snippet, resolves #69840
+	* Improved parsing of global variables, resolves #69838
 
 2015-02-11 Francois Suter (Cobweb)  <typo3@cobweb.ch>
 

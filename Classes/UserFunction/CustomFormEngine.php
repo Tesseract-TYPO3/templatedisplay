@@ -15,7 +15,7 @@ namespace Tesseract\Templatedisplay\UserFunction;
  */
 
 use Tesseract\Tesseract\Utility\Utilities;
-use TYPO3\CMS\Backend\Form\FormEngine;
+use TYPO3\CMS\Backend\Form\Element\UserElement;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Html\HtmlParser;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
@@ -38,11 +38,11 @@ class CustomFormEngine {
 	 * i.e. the screen where data is mapped to the template markers.
 	 *
 	 * @param array $fieldParameters Information related to the field
-	 * @param FormEngine $formObject Reference to calling TCEforms object
+	 * @param UserElement $userElement Reference to calling TCEforms object
 	 *
 	 * @return string The HTML for the form field
 	 */
-	public function mappingField($fieldParameters, FormEngine $formObject) {
+	public function mappingField($fieldParameters, UserElement $userElement) {
 		$marker = array();
 		$formField = '';
 		// Get the related (primary) provider

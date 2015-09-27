@@ -3,10 +3,11 @@ if (!defined ('TYPO3_MODE')) 	die ('Access denied.');
 
 return array(
 	'ctrl' => array(
-		'title'     => 'LLL:EXT:templatedisplay/Resources/Private/Language/locallang_db.xml:tx_templatedisplay_displays',
-		'label'     => 'title',
-		'tstamp'    => 'tstamp',
-		'crdate'    => 'crdate',
+		'title' => 'LLL:EXT:templatedisplay/Resources/Private/Language/locallang_db.xml:tx_templatedisplay_displays',
+		'label' => 'title',
+		'descriptionColumn' => 'description',
+		'tstamp' => 'tstamp',
+		'crdate' => 'crdate',
 		'cruser_id' => 'cruser_id',
 		'default_sortby' => 'ORDER BY title',
 		'delete' => 'deleted',
@@ -24,9 +25,9 @@ return array(
 	'columns' => array(
 		'hidden' => array(
 			'exclude' => 1,
-			'label'   => 'LLL:EXT:lang/locallang_general.xml:LGL.hidden',
-			'config'  => array(
-				'type'    => 'check',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.hidden',
+			'config' => array(
+				'type' => 'check',
 				'default' => '0'
 			)
 		),

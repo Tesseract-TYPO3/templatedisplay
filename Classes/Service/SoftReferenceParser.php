@@ -79,7 +79,7 @@ class SoftReferenceParser implements \TYPO3\CMS\Core\SingletonInterface {
 		// If the content starts with "FILE:" (or "file:"), we may have a file reference
 		if (stripos($content, 'FILE:') === 0) {
 			// Remove the "FILE:" key and cast the rest to int
-			$sysFileId = intval(str_ireplace('FILE:', '' , $content));
+			$sysFileId = (int)str_ireplace('FILE:', '' , $content);
 			// If it's a positive number, load the template's content and prepare information for registering a reference
 			if ($sysFileId > 0) {
 				$this->loadTemplateFile($sysFileId);

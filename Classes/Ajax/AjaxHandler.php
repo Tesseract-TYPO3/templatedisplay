@@ -14,6 +14,7 @@ namespace Tesseract\Templatedisplay\Ajax;
  * The TYPO3 project - inspiring people to share!
  */
 
+use Tesseract\Templatedisplay\UserFunction\CustomFormEngine;
 use Tesseract\Tesseract\Utility\Utilities;
 use TYPO3\CMS\Core\Http\AjaxRequestHandler;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -35,7 +36,7 @@ class AjaxHandler {
 	 * @return void
 	 */
 	public function saveConfiguration($parameters, AjaxRequestHandler $ajaxObject) {
-		$uid = intval(GeneralUtility::_GP('uid'));
+		$uid = (int)GeneralUtility::_GP('uid');
 		$mappings = GeneralUtility::_GP('mappings');
 		$record = $this->getDatabaseConnection()->exec_SELECTgetRows(
 			'uid',
@@ -69,7 +70,7 @@ class AjaxHandler {
 	 * @return void
 	 */
 	public function saveTemplate($parameters, AjaxRequestHandler $ajaxObject) {
-		$uid = intval(GeneralUtility::_GP('uid'));
+		$uid = (int)GeneralUtility::_GP('uid');
 		$template = trim(GeneralUtility::_GP('template'));
 		$record = $this->getDatabaseConnection()->exec_SELECTgetRows(
 			'uid',
@@ -78,8 +79,8 @@ class AjaxHandler {
 		);
 
 		$result = 0;
-		/** @var $tceforms \Tesseract\Templatedisplay\UserFunction\CustomFormEngine */
-		$tceforms = GeneralUtility::makeInstance('Tesseract\\Templatedisplay\\UserFunction\\CustomFormEngine');
+		/** @var $tceforms CustomFormEngine */
+		$tceforms = GeneralUtility::makeInstance(CustomFormEngine::class);
 
 		if (!empty($record)) {
 			// Replaces tabulations by spaces. It takes less space on the screen.
@@ -98,7 +99,7 @@ class AjaxHandler {
 					$filePath = str_ireplace('FILE:', '' , $template);
 					// If the rest of the string is numeric, assume it is a reference to a sys_file
 					if (is_numeric($filePath)) {
-						$filePath = 'file:' . intval($filePath);
+						$filePath = 'file:' . (int)$filePath;
 					}
 					// Try getting the full file path and the content of referenced file
 					try {

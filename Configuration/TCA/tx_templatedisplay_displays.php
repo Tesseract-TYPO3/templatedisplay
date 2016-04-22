@@ -16,7 +16,7 @@ return array(
 		),
 		'searchFields' => 'title,description,template',
 		'typeicon_classes' => array(
-			'default' => 'extensions-templatedisplay-display'
+			'default' => 'tx_templatedisplay-display'
 		),
 	),
 	'interface' => array(

@@ -1,3 +1,7 @@
+2016-04-22 Francois Suter (Cobweb)  <typo3@cobweb.ch>
+
+	* Cleaned up code, resolves #75867
+
 2015-09-27 Francois Suter (Cobweb)  <typo3@cobweb.ch>
 
 	* Ensured compatibility with TYPO3 CMS 7.5, resolves #70141

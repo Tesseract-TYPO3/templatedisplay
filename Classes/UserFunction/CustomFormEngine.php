@@ -17,8 +17,9 @@ namespace Tesseract\Templatedisplay\UserFunction;
 use Tesseract\Tesseract\Utility\Utilities;
 use TYPO3\CMS\Backend\Form\Element\UserElement;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Html\HtmlParser;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
+use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\VersionNumberUtility;
@@ -43,6 +44,11 @@ class CustomFormEngine {
 	 * @return string The HTML for the form field
 	 */
 	public function mappingField($fieldParameters, UserElement $userElement) {
+		/** @var FlashMessageQueue $flashMessageQueue */
+		$flashMessageQueue = GeneralUtility::makeInstance(
+				FlashMessageQueue::class,
+				'tx_templatedisplay'
+		);
 		$marker = array();
 		$formField = '';
 		// Get the related (primary) provider
@@ -190,7 +196,7 @@ class CustomFormEngine {
 				$filePath = str_ireplace('FILE:', '' , $row['template']);
 				// If the rest of the string is numeric, assume it is a reference to a sys_file
 				if (is_numeric($filePath)) {
-					$filePath = 'file:' . intval($filePath);
+					$filePath = 'file:' . (int)$filePath;
 				}
 				// Try getting the full file path and the content of referenced file
 				try {
@@ -244,17 +250,23 @@ class CustomFormEngine {
 
 				// Parse the template and render it.
 			$backendTemplatefile = GeneralUtility::getFileAbsFileName('EXT:templatedisplay/Resources/Private/Templates/templatedisplay.html');
-			$formField .= HtmlParser::substituteMarkerArray(file_get_contents($backendTemplatefile), $marker);
+			/** @var MarkerBasedTemplateService $templateService */
+			$templateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
+			$formField .= $templateService->substituteMarkerArray(
+					file_get_contents($backendTemplatefile),
+					$marker
+			);
 		}
 		catch (\Exception $e) {
 				/** @var $flashMessage FlashMessage */
 			$flashMessage = GeneralUtility::makeInstance(
-				't3lib_FlashMessage',
+				FlashMessage::class,
 				$e->getMessage(),
 				'',
 				FlashMessage::ERROR
 			);
-			$formField .= $flashMessage->render();
+			$flashMessageQueue->enqueue($flashMessage);
+			$formField .= $flashMessageQueue->renderFlashMessages();
 		}
 		return $formField;
 	}
@@ -376,7 +388,7 @@ class CustomFormEngine {
 			$relations = $this->getDatabaseConnection()->exec_SELECTgetRows(
 				'uid_local, local_table, local_field',
 				$aTable,
-				'uid_foreign = ' . intval($row['uid']) . ' AND tablenames = \'tx_templatedisplay_displays\''
+				'uid_foreign = ' . (int)$row['uid'] . ' AND tablenames = \'tx_templatedisplay_displays\''
 			);
 			$numRelations = count($relations);
 			// Exit the loop as soon as at least one relation is found
@@ -385,7 +397,7 @@ class CustomFormEngine {
 					// Try to get the related controller
 					$table = $aRelation['local_table'];
 					$field = $aRelation['local_field'];
-					$uid = intval($aRelation['uid_local']);
+					$uid = (int)$aRelation['uid_local'];
 					$where = 'uid = ' . $uid;
 					$deleteClause = BackendUtility::deleteClause($table);
 					if (!empty($deleteClause)) {

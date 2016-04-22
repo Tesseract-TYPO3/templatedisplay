@@ -19,10 +19,12 @@ use Tesseract\Templatedisplay\RenderingType\CustomTypeInterface;
 use Tesseract\Tesseract\Service\FrontendConsumerBase;
 use Tesseract\Tesseract\Tesseract;
 use Tesseract\Tesseract\Utility\Utilities;
-use TYPO3\CMS\Core\Html\HtmlParser;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
+use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 /**
  * Data Consumer for the 'templatedisplay' extension.
@@ -69,6 +71,11 @@ class DataConsumer extends FrontendConsumerBase {
 	 */
 	protected $debug = FALSE;
 
+	/**
+	 * @var MarkerBasedTemplateService
+	 */
+	protected $templateService;
+
 	protected $labelMarkers = array();
 	protected $datasourceFields = array();
 	protected $datasourceObjects = array();
@@ -86,9 +93,14 @@ class DataConsumer extends FrontendConsumerBase {
 	protected $numericalMarkers = array('COUNTER', 'TOTAL_RECORDS', 'SUBTOTAL_RECORDS', 'RECORD_OFFSET', 'START_AT', 'STOP_AT');
 
 	/**
-	 * @var \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer Local rendering instance
+	 * @var ContentObjectRenderer Local rendering instance
 	 */
 	protected $localCObj;
+
+	public function __construct()
+	{
+		$this->templateService = GeneralUtility::makeInstance(MarkerBasedTemplateService::class);
+	}
 
 	/**
 	 * Resets values for a number of properties.
@@ -208,7 +220,7 @@ class DataConsumer extends FrontendConsumerBase {
 		// ************************************
 
 		// Initializes local cObj
-		$this->localCObj = GeneralUtility::makeInstance('TYPO3\\CMS\\Frontend\\ContentObject\\ContentObjectRenderer');
+		$this->localCObj = GeneralUtility::makeInstance(ContentObjectRenderer::class);
 		$this->debug = $this->controller->getDebug();
 
 		$this->setPageTitle($this->conf);
@@ -242,8 +254,8 @@ class DataConsumer extends FrontendConsumerBase {
 		$uniqueMarkers = array();
 
 			// Formats TypoScript configuration as array
-			/** @var $parseObj \TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser */
-		$parseObj = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\TypoScript\\Parser\\TypoScriptParser');
+			/** @var $parseObj TypoScriptParser */
+		$parseObj = GeneralUtility::makeInstance(TypoScriptParser::class);
 		foreach ($datasource as $data) {
 			if (trim($data['configuration']) != ''){
 
@@ -290,7 +302,7 @@ class DataConsumer extends FrontendConsumerBase {
 			$filePath = str_ireplace('FILE:', '' , $templateCode);
 			// If the rest of the string is numeric, assume it is a reference to a sys_file
 			if (is_numeric($filePath)) {
-				$filePath = 'file:' . intval($filePath);
+				$filePath = 'file:' . (int)$filePath;
 			}
 			// Try getting the full file path and the content of referenced file
 			try {
@@ -324,7 +336,7 @@ class DataConsumer extends FrontendConsumerBase {
 
 		// Global markers are replaced first, so that they are available outise of any loop
 		$globalVariablesMarkers = $this->getGlobalVariablesMarkers($templateCode);
-		$templateCode = HtmlParser::substituteMarkerArray($templateCode, $globalVariablesMarkers);
+		$templateCode = $this->templateService->substituteMarkerArray($templateCode, $globalVariablesMarkers);
 
 		// Begins $templateCode transformation.
 		// *Must* be at the beginning of startProcess()
@@ -344,7 +356,7 @@ class DataConsumer extends FrontendConsumerBase {
 		$markers = array_merge($uniqueMarkers, $LLLMarkers, $expressionMarkers, $sortMarkers, $filterMarkers);
 
 		// First transformation of $templateCode. Substitutes $markers that can be already substituted. (LLL, GP, TSFE, etc...)
-		$templateCode = HtmlParser::substituteMarkerArray($templateCode, $markers);
+		$templateCode = $this->templateService->substituteMarkerArray($templateCode, $markers);
 
 		// Cuts out the template into different part and organizes it in an array.
 		$templateStructure = $this->getTemplateStructure($templateCode);
@@ -372,7 +384,7 @@ class DataConsumer extends FrontendConsumerBase {
 		}
 		// Translates outer labels and fields.
 		$fieldMarkers = array_merge($this->fieldMarkers, $this->getLabelMarkers($this->structure['name']), array('###COUNTER###' => '0'));
-		$templateContent = HtmlParser::substituteMarkerArray($templateContent, $fieldMarkers);
+		$templateContent = $this->templateService->substituteMarkerArray($templateContent, $fieldMarkers);
 
 		// Handles the page browser
 		$templateContent = $this->processPageBrowser($templateContent);
@@ -459,7 +471,10 @@ class DataConsumer extends FrontendConsumerBase {
 					$conf = array();
 					$conf['source'] = $table . '_' . $uid;
 					$conf['tables'] = $table;
-					$_content = $this->localCObj->RECORDS($conf);
+					$_content = $this->localCObj->cObjGetSingle(
+							'RECORDS',
+							$conf
+					);
 					$content = str_replace($marker, $_content, $content);
 				}
 			}
@@ -710,7 +725,7 @@ class DataConsumer extends FrontendConsumerBase {
 			if ($recordOffset > $this->structure['totalCount']) {
 				$recordOffset = $this->structure['totalCount'];
 			}
-			$markers['###START_AT###']	= intval($recordOffset) - intval($this->structure['count']) + 1;
+			$markers['###START_AT###']	= (int)$recordOffset - (int)$this->structure['count'] + 1;
 		}
 		if (preg_match('/#{3}STOP_AT#{3}/isU', $content)) {
 			$page = $this->getCurrentPage();
@@ -851,7 +866,7 @@ class DataConsumer extends FrontendConsumerBase {
 				if (isset($_match[1])) {
 					if (substr($_match[1], 0, 4) == 'pid:') {
 
-						/** @var $contentObject \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer */
+						/** @var $contentObject ContentObjectRenderer */
 						$contentObject = $GLOBALS['TSFE']->cObj;
 						$config = array(
 							'returnLast' => 'url',
@@ -1533,7 +1548,7 @@ class DataConsumer extends FrontendConsumerBase {
 			$this->fieldMarkers = array_merge($fieldMarkers, $totalfieldMarkers, $this->getLabelMarkers($sds['name']), array('###COUNTER###' => $index), $this->counter);
 
 				// Substitutes content
-			$content .= HtmlParser::substituteMarkerArray($_content, $this->fieldMarkers);
+			$content .= $this->templateService->substituteMarkerArray($_content, $this->fieldMarkers);
 
 		} // end for (records)
 
@@ -1556,7 +1571,7 @@ class DataConsumer extends FrontendConsumerBase {
 			$this->conf += array('parseEmptyLoops' => 0);
 			$parseEmptyLoops = $this->conf['parseEmptyLoops'];
 			if ((boolean) $parseEmptyLoops) {
-				$content = HtmlParser::substituteMarkerArray($templateStructure['content'], $markers);
+				$content = $this->templateService->substituteMarkerArray($templateStructure['content'], $markers);
 
 				// Removes remaining ###FIELD###
 				$content = preg_replace('/#{3}FIELD.+#{3}/isU','',$content);
@@ -1577,7 +1592,7 @@ class DataConsumer extends FrontendConsumerBase {
 			$fieldMarkers['###' . $key . '###'] = $this->getValue($datasource);
 		}
 
-		return HtmlParser::substituteMarkerArray($content, $fieldMarkers);
+		return $this->templateService->substituteMarkerArray($content, $fieldMarkers);
 	}
 
 	/**
@@ -1919,7 +1934,7 @@ class DataConsumer extends FrontendConsumerBase {
 	/**
 	 * Returns the local instance of \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer.
 	 *
-	 * @return \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer
+	 * @return ContentObjectRenderer
 	 */
 	public function getLocalCObj() {
 		return $this->localCObj;

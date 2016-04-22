@@ -5,14 +5,16 @@ if (!defined ('TYPO3_MODE')) {
 
 \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::allowTableOnStandardPages('tx_templatedisplay_displays');
 
+
 // Register sprite icon for templatedisplay table
-$extensionRelativePath = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath($_EXTKEY);
-$icon = array(
-	'display' => $extensionRelativePath . 'Resources/Public/Icons/TemplateDisplay.png'
-);
-\TYPO3\CMS\Backend\Sprite\SpriteManager::addSingleIcons(
-	$icon,
-	$_EXTKEY
+/** @var \TYPO3\CMS\Core\Imaging\IconRegistry $iconRegistry */
+$iconRegistry = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Core\Imaging\IconRegistry::class);
+$iconRegistry->registerIcon(
+        'tx_templatedisplay-display',
+        \TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider::class,
+        [
+            'source' => 'EXT:dataquery/Resources/Public/Icons/TemplateDisplay.png'
+        ]
 );
 
 // Add context sensitive help (csh) for this table

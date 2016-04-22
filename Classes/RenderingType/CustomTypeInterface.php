@@ -23,14 +23,15 @@ use Tesseract\Templatedisplay\Component\DataConsumer;
  * @package TYPO3
  * @subpackage tx_templatedisplay
  */
-interface CustomTypeInterface {
-	/**
-	 * Renders the value in a custom way.
-	 *
-	 * @param mixed $value The value of the field being rendered
-	 * @param array $conf TypoScript configuration for the rendering
-	 * @param DataConsumer $parentObject Back-reference to the calling object
-	 * @return string The HTML to display
-	 */
-	public function render($value, $conf, DataConsumer $parentObject);
+interface CustomTypeInterface
+{
+    /**
+     * Renders the value in a custom way.
+     *
+     * @param mixed $value The value of the field being rendered
+     * @param array $conf TypoScript configuration for the rendering
+     * @param DataConsumer $parentObject Back-reference to the calling object
+     * @return string The HTML to display
+     */
+    public function render($value, $conf, DataConsumer $parentObject);
 }

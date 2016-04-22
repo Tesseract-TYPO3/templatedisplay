@@ -24,17 +24,19 @@ use TYPO3\CMS\Core\SingletonInterface;
  * @package TYPO3
  * @subpackage tx_templatedisplay
  */
-class PhoneType implements CustomTypeInterface, SingletonInterface {
-	/**
-	 * Renders the value in a "callto" hyperlink.
-	 *
-	 * @param mixed $value The value of the field being rendered
-	 * @param array $configuration TypoScript configuration for the rendering
-	 * @param DataConsumer $parentObject Back-reference to the calling object
-	 * @return string The HTML to display
-	 */
-	function render($value, $configuration, DataConsumer $parentObject) {
-		$rendering = '<a href="callto://' . rawurlencode($value) . '">' . $value . '</a>';
-		return $rendering;
-	}
+class PhoneType implements CustomTypeInterface, SingletonInterface
+{
+    /**
+     * Renders the value in a "callto" hyperlink.
+     *
+     * @param mixed $value The value of the field being rendered
+     * @param array $configuration TypoScript configuration for the rendering
+     * @param DataConsumer $parentObject Back-reference to the calling object
+     * @return string The HTML to display
+     */
+    public function render($value, $configuration, DataConsumer $parentObject)
+    {
+        $rendering = '<a href="callto://' . rawurlencode($value) . '">' . $value . '</a>';
+        return $rendering;
+    }
 }

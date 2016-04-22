@@ -27,7 +27,7 @@ Template Display
 		  tesseract, display, data consumer
 
 	:Copyright:
-		2007-2014
+		2007-2016
 
 	:Author:
 		  Fabien Udriot, François Suter (Cobweb)

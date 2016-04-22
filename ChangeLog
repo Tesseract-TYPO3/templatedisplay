@@ -1,7 +1,16 @@
+2015-09-27 Francois Suter (Cobweb)  <typo3@cobweb.ch>
+
+	* Ensured compatibility with TYPO3 CMS 7.5, resolves #70141
+	* Added reference to description field, resolves #70142
+
 2015-09-15 Francois Suter (Cobweb)  <typo3@cobweb.ch>
 
 	* Fixed wrong TS property in FAL references snippet, resolves #69840
 	* Improved parsing of global variables, resolves #69838
+
+2015-08-21 Francois Suter (Cobweb)  <typo3@cobweb.ch>
+
+	* Moved to namespaces, verified compatibility with TYPO3 CMS 7, resolves #69240
 
 2015-02-11 Francois Suter (Cobweb)  <typo3@cobweb.ch>
 

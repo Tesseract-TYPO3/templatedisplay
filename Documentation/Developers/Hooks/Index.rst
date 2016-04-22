@@ -25,7 +25,7 @@ In templatedisplay, there are 2 available hooks:
 
 To facilitate the implementation of a hook, a skeleton file can be
 found in
-:file:`EXT:templatedisplay/samples/class.tx\_templatedisplay\_hook.php`.
+:file:`templatedisplay/Documentation/Developers/Hooks/Index.rst`.
 
 
 .. _developers-hooks-step-1:
@@ -37,7 +37,7 @@ In the :file:`ext_localconf.php` of your extension, register the hook:
 
 .. code-block:: php
 
-	$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['templatedisplay']['postProcessResult']['myHook'][] = 'EXT:templatedisplay/class.tx_templatedisplay_hook.php:&tx_templatedisplay_hook';
+	$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['templatedisplay']['postProcessResult']['myHook'][] = 'Tesseract\\Templatedisplay\\Sample\\SampleHook';
 
 Remarks:
 
@@ -60,9 +60,9 @@ Write the PHP method that will transform the content.
 
 .. code-block:: php
 
-	class tx_templatedisplay_hook {
-		public function postProcessResult($content, $marker, &$pObj) {
-			$controller = $pObj->getController();
+	class SampleHook {
+		public function postProcessResult($content, $marker, $parentObject) {
+			$controller = $parentObject->getController();
 			$data = $controller->cObj->data;
 			if ($data['uid'] == 11399) {
 				$_content = '';

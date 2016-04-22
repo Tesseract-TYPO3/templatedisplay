@@ -1,0 +1,17 @@
+/* Patch styles for TYPO3 7, until mapping module is fully rewritten */
+#tx_templatedisplay_menu .typo3-dyntabmenu td {
+	border-top: 1px solid #cccccc;
+	border-left: 1px solid #cccccc;
+	border-right: 1px solid #cccccc;
+	padding: 8px;
+}
+#tx_templatedisplay_menu .typo3-dyntabmenu td a {
+	color: grey;
+	text-decoration: none;
+}
+#tx_templatedisplay_menu .typo3-dyntabmenu td.tabact a {
+	color: black;
+}
+#tx_templatedisplay_menu .typo3-dyntabmenu td.tabact {
+	background-color: #f5f5f5;
+}

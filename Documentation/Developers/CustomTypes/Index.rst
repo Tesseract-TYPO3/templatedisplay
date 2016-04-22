@@ -23,7 +23,7 @@ As for hooks this is a two-step process.
 Step 1
 """"""
 
-Register the custom type in file:`ext_localconf.php` file of your extension.
+Register the custom type in :file:`ext_localconf.php` file of your extension.
 The syntax is as follows:
 
 .. code-block:: php
@@ -31,11 +31,11 @@ The syntax is as follows:
 	$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['templatedisplay']['types']['tx_test_mytype'] = array(
 		'label' => 'LLL:EXT:' . $_EXTKEY . '/locallang.xml:mytype',
 		'icon'  => 'EXT:' . $_EXTKEY . '/mytype.png',
-		'class' => 'tx_test_templatedisplay'
+		'class' => 'Tesseract\\Templatedisplay\\RenderingType\\PhoneType'
 	);
 
 The custom type is registered with a specific key (e.g.
-“tx\_test\_mytype”) and with the following information:
+:code:`tx_test_mytype`) and with the following information:
 
 - a label that will appear in the drop-down list of available element
   types (as well as alt text for the icon)
@@ -43,8 +43,8 @@ The custom type is registered with a specific key (e.g.
 - an icon that will appear in the mapping interface when that type has
   been selected
 
-- a class to do the processing of that custom type. The class must
-  implement the :code:`tx_templatedisplay_CustomType` interface (more below).
+- a class to do the processing of that custom type. The class **must**
+  implement the :code:`\Tesseract\Templatedisplay\RenderingType\CustomTypeInterface` interface (more below).
 
 Don't forget to register the class with the autoloader.
 
@@ -63,28 +63,33 @@ $value
   Description
     The current value of the field that was mapped.
 
-$conf
+$configuration
   Type
     array
   Description
      TypoScript configuration for the rendering (this may be ignore if you
      don't need TypoScript).
 
-$pObj
+$parentObject
   Type
     object
   Description
-     A reference to the calling :code:`tx_templatedisplay` object.
+     A reference to the calling :code:`\Tesseract\Templatedisplay\Component\DataConsumer` object.
 
 
 A sample implementation is provided in the
-:file:`samples/class.tx_templatedisplay_phonetype.php` file. The code
+:file:`EXT:templatedisplay/Classes/RenderingType/PhoneType.php` file. The code
 looks like this (without comments):
 
 .. code-block:: php
 
-	class tx_templatedisplay_PhoneType implements tx_templatedisplay_CustomType {
-		function render($value, $conf, tx_templatedisplay $pObj) {
+	namespace Tesseract\Templatedisplay\RenderingType;
+
+	use Tesseract\Templatedisplay\Component\DataConsumer;
+	use TYPO3\CMS\Core\SingletonInterface;
+
+	class PhoneType implements CustomTypeInterface, SingletonInterface {
+		function render($value, $configuration, DataConsumer $parentObject) {
 			$rendering = '<a href="callto://' . rawurlencode($value) . '">' . $value . '</a>';
 			return $rendering;
 		}
@@ -93,7 +98,6 @@ looks like this (without comments):
 In this simple example the class just does some minor processing with
 the value it receives and returns the result.
 
-Such classes should implement the :code:`t3lib_Singleton` interface so that only one instance of it is
+Such classes should implement the :code:`\TYPO3\CMS\Core\SingletonInterface` interface so that only one instance of it is
 created (otherwise one instance is created for each field using this
 custom type on each pass in the loop). This will save memory.
-

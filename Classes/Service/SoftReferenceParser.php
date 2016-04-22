@@ -1,37 +1,25 @@
 <?php
 namespace Tesseract\Templatedisplay\Service;
 
-/***************************************************************
-*  Copyright notice
-*
-*  (c) 2013	Francois Suter (Cobweb) <typo3@cobweb.ch>
-*  All rights reserved
-*
-*  This script is part of the TYPO3 project. The TYPO3 project is
-*  free software; you can redistribute it and/or modify
-*  it under the terms of the GNU General Public License as published by
-*  the Free Software Foundation; either version 2 of the License, or
-*  (at your option) any later version.
-*
-*  The GNU General Public License can be found at
-*  http://www.gnu.org/copyleft/gpl.html.
-*
-*  This script is distributed in the hope that it will be useful,
-*  but WITHOUT ANY WARRANTY; without even the implied warranty of
-*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
-*  GNU General Public License for more details.
-*
-*  This copyright notice MUST APPEAR in all copies of the script!
-***************************************************************/
+/*
+ * This file is part of the TYPO3 CMS project.
+ *
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with this source code.
+ *
+ * The TYPO3 project - inspiring people to share!
+ */
 
 /**
  * Soft-reference parser for the template field of the 'templatedisplay' extension.
  *
- * @author		Francois Suter (Cobweb) <typo3@cobweb.ch>
- * @package		TYPO3
- * @subpackage	tx_templatedisplay
- *
- * $Id: class.tx_templatedisplay.php 74477 2013-04-12 09:28:48Z francois $
+ * @author Francois Suter (Cobweb) <typo3@cobweb.ch>
+ * @package	 TYPO3
+ * @subpackage tx_templatedisplay
  */
 class SoftReferenceParser implements \TYPO3\CMS\Core\SingletonInterface {
 	/**
@@ -108,7 +96,7 @@ class SoftReferenceParser implements \TYPO3\CMS\Core\SingletonInterface {
 	}
 
 	/**
-	 * Loads the content of a file, as given by a file reference
+	 * Loads the content of a file, as given by a file reference.
 	 *
 	 * @param integer $id Id of a sys_file
 	 */
@@ -130,7 +118,7 @@ class SoftReferenceParser implements \TYPO3\CMS\Core\SingletonInterface {
 
 	/**
 	 * Parses the loaded template code and identifies references to records (in markers using the
-	 * ###RECORD(tt_content, xxx)### syntax)
+	 * ###RECORD(tt_content, xxx)### syntax).
 	 *
 	 * @return array
 	 */
@@ -156,5 +144,3 @@ class SoftReferenceParser implements \TYPO3\CMS\Core\SingletonInterface {
 		return $references;
 	}
 }
-
-?>

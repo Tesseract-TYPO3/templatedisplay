@@ -1,18 +1,33 @@
 <?php
 if (!defined ('TYPO3_MODE')) 	die ('Access denied.');
 
-$GLOBALS['TCA']['tx_templatedisplay_displays'] = array(
-	'ctrl' => $GLOBALS['TCA']['tx_templatedisplay_displays']['ctrl'],
+return array(
+	'ctrl' => array(
+		'title' => 'LLL:EXT:templatedisplay/Resources/Private/Language/locallang_db.xml:tx_templatedisplay_displays',
+		'label' => 'title',
+		'descriptionColumn' => 'description',
+		'tstamp' => 'tstamp',
+		'crdate' => 'crdate',
+		'cruser_id' => 'cruser_id',
+		'default_sortby' => 'ORDER BY title',
+		'delete' => 'deleted',
+		'enablecolumns' => array(
+			'disabled' => 'hidden',
+		),
+		'searchFields' => 'title,description,template',
+		'typeicon_classes' => array(
+			'default' => 'extensions-templatedisplay-display'
+		),
+	),
 	'interface' => array(
 		'showRecordFieldList' => 'hidden,title,description,mappings'
 	),
-	'feInterface' => $GLOBALS['TCA']['tx_templatedisplay_displays']['feInterface'],
 	'columns' => array(
 		'hidden' => array(
 			'exclude' => 1,
-			'label'   => 'LLL:EXT:lang/locallang_general.xml:LGL.hidden',
-			'config'  => array(
-				'type'    => 'check',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.hidden',
+			'config' => array(
+				'type' => 'check',
 				'default' => '0'
 			)
 		),
@@ -49,7 +64,7 @@ $GLOBALS['TCA']['tx_templatedisplay_displays'] = array(
 			'label' => 'LLL:EXT:templatedisplay/Resources/Private/Language/locallang_db.xml:tx_templatedisplay_displays.mappings',
 			'config' => array(
 				'type' => 'user',
-				'userFunc' => 'tx_templatedisplay_tceforms->mappingField',
+				'userFunc' => 'Tesseract\\Templatedisplay\\UserFunction\\CustomFormEngine->mappingField',
 			)
 		),
 	),
@@ -57,4 +72,3 @@ $GLOBALS['TCA']['tx_templatedisplay_displays'] = array(
 		'0' => array('showitem' => 'hidden, title, mappings, description')
 	),
 );
-?>

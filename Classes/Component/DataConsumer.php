@@ -1,46 +1,68 @@
 <?php
-/***************************************************************
-*  Copyright notice
-*
-*  (c) 2007-2014	Francois Suter (Cobweb) <typo3@cobweb.ch>
-*					Fabien Udriot <fabien.udriot@ecodev.ch>
-*  All rights reserved
-*
-*  This script is part of the TYPO3 project. The TYPO3 project is
-*  free software; you can redistribute it and/or modify
-*  it under the terms of the GNU General Public License as published by
-*  the Free Software Foundation; either version 2 of the License, or
-*  (at your option) any later version.
-*
-*  The GNU General Public License can be found at
-*  http://www.gnu.org/copyleft/gpl.html.
-*
-*  This script is distributed in the hope that it will be useful,
-*  but WITHOUT ANY WARRANTY; without even the implied warranty of
-*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
-*  GNU General Public License for more details.
-*
-*  This copyright notice MUST APPEAR in all copies of the script!
-***************************************************************/
+namespace Tesseract\Templatedisplay\Component;
+
+/*
+ * This file is part of the TYPO3 CMS project.
+ *
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with this source code.
+ *
+ * The TYPO3 project - inspiring people to share!
+ */
+
+use Cobweb\Expressions\ExpressionParser;
+use Tesseract\Templatedisplay\RenderingType\CustomTypeInterface;
+use Tesseract\Tesseract\Service\FrontendConsumerBase;
+use Tesseract\Tesseract\Tesseract;
+use Tesseract\Tesseract\Utility\Utilities;
+use TYPO3\CMS\Core\Html\HtmlParser;
+use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Data Consumer for the 'templatedisplay' extension.
  *
- * @author		Francois Suter (Cobweb) <typo3@cobweb.ch>
- * @author		Fabien Udriot <fabien.udriot@ecodev.ch>
- * @package		TYPO3
- * @subpackage	tx_templatedisplay
+ * @author Francois Suter (Cobweb) <typo3@cobweb.ch>
+ * @author Fabien Udriot <fabien.udriot@ecodev.ch>
+ * @package TYPO3
+ * @subpackage tx_templatedisplay
  */
-class tx_templatedisplay extends tx_tesseract_feconsumerbase {
+class DataConsumer extends FrontendConsumerBase {
 
 	public $tsKey = 'tx_templatedisplay';
 	public $extKey = 'templatedisplay';
+	/**
+	 * @var array List of default rendering types
+	 */
 	public static $defaultTypes = array('raw', 'text', 'richtext', 'image', 'imageResource', 'media', 'files', 'records', 'linkToDetail', 'linkToPage', 'linkToFile', 'email', 'user');
-	protected $conf; // TypoScript configuration
-	protected $table; // Name of the table where the details about the data display are stored
-	protected $uid; // Primary key of the record to fetch for the details
-	protected $structure = array(); // Input standardised data structure
-	protected $result = ''; // The result of the processing by the Data Consumer
+	/**
+	 * @var array TypoScript configuration
+	 */
+	protected $conf;
+	/**
+	 * @var string Name of the table where the details about the data display are stored
+	 */
+	protected $table;
+	/**
+	 * @var int Primary key of the record to fetch for the details
+	 */
+	protected $uid;
+	/**
+	 * @var array Input standardised data structure
+	 */
+	protected $structure = array();
+	/**
+	 * @var string The result of the processing by the Data Consumer
+	 */
+	protected $result = '';
+	/**
+	 * @var array List of counters from the various loops
+	 */
 	protected $counter = array();
 	/**
 	 * @var bool Debug flag
@@ -64,16 +86,16 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 	protected $numericalMarkers = array('COUNTER', 'TOTAL_RECORDS', 'SUBTOTAL_RECORDS', 'RECORD_OFFSET', 'START_AT', 'STOP_AT');
 
 	/**
-	 *
-	 * @var tslib_cObj
+	 * @var \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer Local rendering instance
 	 */
 	protected $localCObj;
 
 	/**
-	 * This method resets values for a number of properties
-	 * This is necessary because services are managed as singletons
+	 * Resets values for a number of properties.
 	 *
-	 * @return	void
+	 * This is necessary because services are managed as singletons.
+	 *
+	 * @return void
 	 */
 	public function reset(){
 		$this->structure = array();
@@ -88,18 +110,18 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 	}
 
 	/**
-	 * Return the filter data.
+	 * Returns the filter data.
 	 *
-	 * @return	array
+	 * @return array
 	 */
 	public function getFilter() {
 		return $this->filter;
 	}
 
 	/**
-	 * This method is used to pass a TypoScript configuration (in array form) to the Data Consumer
+	 * Passes a TypoScript configuration (in array form) to the Data Consumer.
 	 *
-	 * @param	array	$conf: TypoScript configuration for the extension
+	 * @param array $conf TypoScript configuration for the extension
 	 */
 	public function setTypoScript($conf) {
 		$this->conf = $conf;
@@ -108,77 +130,76 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 	// Data Consumer interface methods
 
 	/**
-	 * This method returns the type of data structure that the Data Consumer can use
+	 * Returns the type of data structure that the Data Consumer can use.
 	 *
-	 * @return	string	type of used data structures
+	 * @return string Type of used data structures
 	 */
 	public function getAcceptedDataStructure() {
-		return tx_tesseract::RECORDSET_STRUCTURE_TYPE;
+		return Tesseract::RECORDSET_STRUCTURE_TYPE;
 	}
 
 	/**
-	 * This method indicates whether the Data Consumer can use the type of data structure requested or not
+	 * Indicates whether the Data Consumer can use the type of data structure requested or not.
 	 *
-	 * @param	string		$type: type of data structure
-	 * @return	boolean		true if it can use the requested type, false otherwise
+	 * @param string $type Type of data structure
+	 * @return boolean True if it can use the requested type, false otherwise
 	 */
 	public function acceptsDataStructure($type) {
-		return $type == tx_tesseract::RECORDSET_STRUCTURE_TYPE;
+		return $type === Tesseract::RECORDSET_STRUCTURE_TYPE;
 	}
 
 	/**
-	 * This method is used to pass a data structure to the Data Consumer
+	 * Passes a data structure to the Data Consumer.
 	 *
-	 * @param 	array	$structure: standardised data structure
-	 * @return	void
+	 * @param array $structure Standardised data structure
+	 * @return void
 	 */
 	public function setDataStructure($structure) {
 		$this->structure = $structure;
 	}
 
 	/**
-	 * This method is used to pass a filter to the Data Consumer
+	 * Passes a filter to the Data Consumer.
 	 *
-	 * @param 	array	$filter: Data Filter structure
-	 * @return	void
+	 * @param array $filter Data Filter structure
+	 * @return void
 	 */
 	public function setDataFilter($filter) {
 		$this->filter = $filter;
 	}
 
 	/**
-	 * This method is used to get a data structure
+	 * Gets the data structure.
 	 *
-	 * @return 	array	$structure: standardised data structure
+	 * @return array $structure Standardised data structure
 	 */
 	public function getDataStructure() {
 		return $this->structure;
 	}
 
 	/**
-	 * This method returns the result of the work done by the Data Consumer (FE output or whatever else)
+	 * Returns the result of the work done by the Data Consumer (FE output or whatever else).
 	 *
-	 * @return	mixed	the result of the Data Consumer's work
+	 * @return mixed The result of the Data Consumer's work
 	 */
 	public function getResult() {
 		return $this->result;
 	}
 
 	/**
-	 * This method sets the result. Useful for hooks.
+	 * Sets the result. Useful for hooks.
 	 *
 	 * @param string $result Some existing result
-	 * @return	void
+	 * @return void
 	 */
 	public function setResult($result) {
-
 		$this->result = $result;
 	}
 
 	/**
-	 * This method starts whatever rendering process the Data Consumer is programmed to do
+	 * Starts the rendering process.
 	 *
-	 * @return	void
+	 * @return void
 	 */
 	public function startProcess() {
 
@@ -187,7 +208,7 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 		// ************************************
 
 		// Initializes local cObj
-		$this->localCObj = t3lib_div::makeInstance('tslib_cObj');
+		$this->localCObj = GeneralUtility::makeInstance('TYPO3\\CMS\\Frontend\\ContentObject\\ContentObjectRenderer');
 		$this->debug = $this->controller->getDebug();
 
 		$this->setPageTitle($this->conf);
@@ -206,13 +227,13 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 				$datasource = array();
 			}
 		}
-		catch (Exception $e) {
-				// Issue error message and exit immediately
+		catch (\Exception $e) {
+			// Issue error message and exit immediately
 			$this->controller->addMessage(
 				$this->extKey,
 				'JSON decoding failed, rendering aborted',
 				'',
-				t3lib_FlashMessage::ERROR,
+				FlashMessage::ERROR,
 				array($this->consumerData['mappings'])
 			);
 			return;
@@ -221,17 +242,16 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 		$uniqueMarkers = array();
 
 			// Formats TypoScript configuration as array
-			/** @var $parseObj t3lib_TSparser */
-		$parseObj = t3lib_div::makeInstance('t3lib_TSparser');
+			/** @var $parseObj \TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser */
+		$parseObj = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\TypoScript\\Parser\\TypoScriptParser');
 		foreach ($datasource as $data) {
-			if(trim($data['configuration']) != ''){
+			if (trim($data['configuration']) != ''){
 
 				// Clears the setup (to avoid typoscript incrementation)
 				$parseObj->setup = array();
 				$parseObj->parse($data['configuration']);
 				$data['configuration'] = $parseObj->setup;
-			}
-			else{
+			} else{
 				$data['configuration'] = array();
 			}
 
@@ -274,17 +294,17 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 			}
 			// Try getting the full file path and the content of referenced file
 			try {
-				$fullFilePath = tx_tesseract_utilities::getTemplateFilePath($filePath);
+				$fullFilePath = Utilities::getTemplateFilePath($filePath);
 				$templateCode = file_get_contents($fullFilePath);
 			}
-			catch (Exception $e) {
+			catch (\Exception $e) {
 				// The file reference could not be resolved, set an empty template and issue an error message
 				$templateCode = '';
 				$this->controller->addMessage(
 					$this->extKey,
 					$e->getMessage() . ' (' . $e->getCode() . ')',
 					'Template file not found',
-					t3lib_FlashMessage::ERROR
+					FlashMessage::ERROR
 				);
 			}
 		}
@@ -295,7 +315,7 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 				$hookName = $match[1];
 				if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->extKey]['preProcessResult'][$hookName])) {
 					foreach($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->extKey]['preProcessResult'][$hookName] as $className) {
-						$preProcessor = &t3lib_div::getUserObj($className);
+						$preProcessor = GeneralUtility::getUserObj($className);
 						$templateCode = $preProcessor->preProcessResult($templateCode, $hookName, $this);
 					}
 				}
@@ -304,7 +324,7 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 
 		// Global markers are replaced first, so that they are available outise of any loop
 		$globalVariablesMarkers = $this->getGlobalVariablesMarkers($templateCode);
-		$templateCode = t3lib_parsehtml::substituteMarkerArray($templateCode, $globalVariablesMarkers);
+		$templateCode = HtmlParser::substituteMarkerArray($templateCode, $globalVariablesMarkers);
 
 		// Begins $templateCode transformation.
 		// *Must* be at the beginning of startProcess()
@@ -324,15 +344,15 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 		$markers = array_merge($uniqueMarkers, $LLLMarkers, $expressionMarkers, $sortMarkers, $filterMarkers);
 
 		// First transformation of $templateCode. Substitutes $markers that can be already substituted. (LLL, GP, TSFE, etc...)
-		$templateCode = t3lib_parsehtml::substituteMarkerArray($templateCode, $markers);
+		$templateCode = HtmlParser::substituteMarkerArray($templateCode, $markers);
 
-			// Cuts out the template into different part and organizes it in an array.
+		// Cuts out the template into different part and organizes it in an array.
 		$templateStructure = $this->getTemplateStructure($templateCode);
 
-			// Debug
+		// Debug
 		$this->performDebug($markers, $templateStructure);
 
-			// Transforms the HTML template to HTML content
+		// Transforms the HTML template to HTML content
 		$templateContent = $templateCode;
 		foreach ($templateStructure as &$_templateStructure) {
 			if (!empty($this->structure['records'])) {
@@ -346,78 +366,78 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 			}
 		}
 
-			// Useful when the data structure is empty (no records)
+		// Useful when the data structure is empty (no records)
 		if (!$this->getLabelMarkers($this->structure['name'])) {
 			$this->setLabelMarkers($this->structure);
 		}
-			// Translates outter labels and fields.
+		// Translates outer labels and fields.
 		$fieldMarkers = array_merge($this->fieldMarkers, $this->getLabelMarkers($this->structure['name']), array('###COUNTER###' => '0'));
-		$templateContent = t3lib_parsehtml::substituteMarkerArray($templateContent, $fieldMarkers);
+		$templateContent = HtmlParser::substituteMarkerArray($templateContent, $fieldMarkers);
 
-			// Handles the page browser
+		// Handles the page browser
 		$templateContent = $this->processPageBrowser($templateContent);
 
-			// Handles the <!--IF(###MARKER### == '')-->
-			// Evaluates the condition and replaces the content whether it is necessary
-			// Must be at the end of startProcess()
+		// Handles the <!--IF(###MARKER### == '')-->
+		// Evaluates the condition and replaces the content whether it is necessary
+		// Must be at the end of startProcess()
 		$templateContent = $this->postProcessFUNCTIONS($templateContent);
 		$this->result = $this->postProcessIF($templateContent);
 
-			// Hook that enables to post process the output)
+		// Hook that enables to post process the output)
 		if (preg_match_all('/#{3}HOOK\.(.+)#{3}/isU', $this->result, $matches, PREG_SET_ORDER)) {
 			foreach ($matches as $match) {
 				$hookName = $match[1];
 				if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->extKey]['postProcessResult'][$hookName])) {
 					foreach($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][$this->extKey]['postProcessResult'][$hookName] as $className) {
-						$postProcessor = &t3lib_div::getUserObj($className);
+						$postProcessor = GeneralUtility::getUserObj($className);
 						$this->result = $postProcessor->postProcessResult($this->result, $hookName, $this);
 					}
 				}
 			}
 		}
 
-			// Processes markers of type ###RECORD(tt_content,1)###
+		// Processes markers of type ###RECORD(tt_content,1)###
 		$this->result = $this->processRECORDS($this->result);
 
 		$this->result = $this->clearMarkers($this->result);
 	}
 
 	/**
-	 * Removes unreplaced markers (unless debug is active)
+	 * Removes unreplaced markers (unless debug is active).
 	 *
 	 * @param string $content The prepared output
 	 * @return string Cleaned up output
 	 */
 	function clearMarkers($content) {
-			// Useful for debug purpose. Whenever the parameter is detected, it will not replace empty value.
+		// Useful for debug purpose. Whenever the parameter is detected, it will not replace empty value.
 		if (!$this->debug) {
 			$content = preg_replace('/#{3}.+#{3}/isU', '', $content);
 		}
-			// Replace escaped markers
+		// Replace escaped markers
 		$content = str_replace('\#\#\#', '###', $content);
 		return $content;
 	}
 
 	/**
-	 * Processes markers of type ###RECORD('tt_content',1)###
+	 * Processes markers of type ###RECORD('tt_content',1)###.
 	 *
-	 * @param	string	$content: the content
-	 * @return	string	$content:
+	 * @param string $content The content
+	 * @return string Processed content
 	 */
 	protected function processRECORDS($content) {
 
 		if (preg_match_all("/#{3}RECORD\((.+),(.+)\)#{3}/isU", $content, $matches, PREG_SET_ORDER)) {
 
-				// Stores the filter. Templatedisplay is a singleton and the filter property will be overridden by a child call.
+			// Stores the filter. Templatedisplay is a singleton and the filter property will be overridden by a child call.
 			$GLOBALS['tesseract']['filter']['parent'] = $this->filter;
 
-				// Get the current controller's id
-				// NOTE: At least in a FE context, it should never be missing,
-				// since it will correspond to a tt_content record.
+			// Get the current controller's id
+			// NOTE: At least in a FE context, it should never be missing,
+			// since it will correspond to a tt_content record.
 			try {
 				$currentUid = $this->controller->getControllerDataValue('uid');
 			}
-			catch (tx_tesseract_exception $e) {
+			catch (\Tesseract\Tesseract\Exception\Exception $e) {
 				$currentUid = 0;
 			}
 
@@ -433,7 +453,7 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 						$this->extKey,
 						'Recursive call to RECORD ' . $table . ':' . $uid,
 						'',
-						t3lib_FlashMessage::WARNING
+						FlashMessage::WARNING
 					);
 				} else {
 					$conf = array();
@@ -449,25 +469,26 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 
 	/**
 	 * Changes the page title if templatedisplay encounters TypoScript configuration.
-	 * Typoscript configuration have the insertData syntax e.g. {table.field}
+	 *
+	 * Typoscript configuration have the insertData syntax e.g. {table.field}.
 	 * This is done by changing the page title in the tslib_fe object.
 	 *
-	 * @param	array	$configuration: Local TypoScript configuration
-	 * @return	void
+	 * @param array $configuration Local TypoScript configuration
+	 * @return void
 	 */
 	protected function setPageTitle($configuration) {
-			// Checks wheter the title of the template need to be changed
+		// Checks whether the title of the template need to be changed
 		if ($configuration['substitutePageTitle']) {
 			$pageTitle = $configuration['substitutePageTitle'];
 
-				// extracts the {table.field}
+			// extracts the {table.field}
 			if (preg_match_all('/\{(.+)\}/isU', $pageTitle, $matches, PREG_SET_ORDER)) {
 				foreach ($matches as $match) {
 					$expression = $match[0];
 					$expressionInner = $match[1];
 					$values = explode('.', $expressionInner);
 
-						// Checks if table name is given or not.
+					// Checks if table name is given or not.
 					if (count($values) == 1) {
 						$table = $this->structure['name'];
 						$field = $values[0];
@@ -486,7 +507,7 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 	/**
 	 * Makes sure the operand does not contain the symbol "'".
 	 *
-	 * @param string	$operand
+	 * @param string $operand
 	 * @return string
 	 */
 	protected function sanitizeOperand($operand) {
@@ -500,7 +521,7 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 	}
 
 	/**
-	 * If found, returns markers of type SORT
+	 * If found, returns markers of type SORT.
 	 *
 	 * Example of marker: ###SORT###
 	 *
@@ -513,7 +534,7 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 			foreach($matches as $match){
 				$marker = $match[0];
 				$markerContent = $match[1];
-					// Get the position of the sort
+				// Get the position of the sort
 				if (preg_match('/([0-9])$/is', $markerContent, $positions)) {
 					$position = $positions[0];
 				}
@@ -521,7 +542,7 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 					$position = 1;
 				}
 
-					// Gets whether it is a sort or an order
+				// Gets whether it is a sort or an order
 				if (strpos($markerContent, 'sort') !== FALSE) {
 					$sortTable = '';
 					if ($this->filter['orderby'][$position * 2 - 1]['table'] != '') {
@@ -534,28 +555,28 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 				}
 			}
 		}
-			// Post-process markers as possible expressions
+		// Post-process markers as possible expressions
 		foreach ($markers as &$marker) {
-			$marker = tx_expressions_parser::evaluateString($marker);
+			$marker = ExpressionParser::evaluateString($marker);
 		}
 		return $markers;
 	}
 
 	/**
-	 * If found, returns markers of type FILTER
+	 * If found, returns markers of type FILTER.
 	 *
 	 * Example of marker: ###FILTER###
 	 *
-	 * @param	string	$content HTML code
-	 * @return	string	$content transformed HTML code
+	 * @param string $content HTML code
+	 * @return string Transformed HTML code
 	 */
 	protected function getFilterMarkers($content) {
 		$markers = array();
 		if (preg_match_all('/#{3}FILTER\.(.+)#{3}/isU', $content, $matches, PREG_SET_ORDER)) {
 
-				// Defines the filters array.
-				// It can be the property of the object
-				// But the filter can be given by the caller. @see method processRECORDS();
+			// Defines the filters array.
+			// It can be the property of the object
+			// But the filter can be given by the caller. @see method processRECORDS();
 			if (isset($GLOBALS['tesseract']['filter']['parent'])) {
 				$filters = $GLOBALS['tesseract']['filter']['parent'];
 			}
@@ -563,12 +584,12 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 				$filters = $this->filter;
 			}
 
-				// Traverse the FILTER markers
+			// Traverse the FILTER markers
 			foreach($matches as $match){
 				$marker = $match[0];
 				$markerInner = $match[1];
 
-					// Traverses the array and finds the value
+				// Traverses the array and finds the value
 				if (isset($filters['parsed']['filters'][$markerInner])) {
 					$_filter = $filters['parsed']['filters'][$markerInner];
 					$_filter = reset($_filter); //retrieve the cell independently from the key
@@ -576,21 +597,21 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 				}
 			}
 		}
-			// Post-process markers as possible expressions
+		// Post-process markers as possible expressions
 		foreach ($markers as &$marker) {
-			$marker = tx_expressions_parser::evaluateString($marker);
+			$marker = ExpressionParser::evaluateString($marker);
 		}
 		return $markers;
 	}
 
 	/**
-	 * If found, returns all markers that correspond to subexpressions
-	 * and can be parsed using tx_expressions_parser
+	 * Returns all markers that correspond to subexpressions
+	 * and can be parsed using \Cobweb\Expressions\ExpressionParser.
 	 *
 	 * Example of GP marker: ###EXPRESSION.gp:parameter1|parameter2###
 	 *
-	 * @param	string	$content HTML code
-	 * @return	string	$content transformed HTML code
+	 * @param string $content HTML code
+	 * @return string Transformed HTML code
 	 */
 	protected function getAllExpressionMarkers($content) {
 		$markers = array();
@@ -599,15 +620,15 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 			if ($numberOfMatches > 0) {
 				for ($index = 0; $index < $numberOfMatches; $index ++) {
 					try {
-						$markers[$matches[$index][0]] = tx_expressions_parser::evaluateExpression($matches[$index][1]);
+						$markers[$matches[$index][0]] = ExpressionParser::evaluateExpression($matches[$index][1]);
 					}
-					catch (Exception $e) {
+					catch (\Exception $e) {
 						$markers[$matches[$index][0]] = 'NULL';
 						$this->controller->addMessage(
 							$this->extKey,
 							'Problem parsing expression "' . $matches[$index][1] . '" (' . $e->getMessage() . ')',
 							'',
-							t3lib_FlashMessage::WARNING
+							FlashMessage::WARNING
 						);
 					}
 				}
@@ -617,21 +638,24 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 	}
 
 	/**
-	 * If found, returns markers, of type $key (GP, TSFE, page)
+	 * If found, returns markers, of type $key (GP, TSFE, page).
 	 *
 	 * Example of GP marker: ###GP:tx_displaycontroller_pi2|parameter###
 	 *
 	 * @param string $key Maybe, tsfe, page, gp
 	 * @param array $source Source of data to search in
 	 * @param string $content HTML code
-	 * @throws Exception
+	 * @throws \Tesseract\Tesseract\Exception\Exception
 	 * @return string Transformed HTML code
 	 */
 	protected function getExpressionMarkers($key, &$source, $content) {
 
-			// Makes sure $expression has a value
+		// Makes sure $expression has a value
 		if (empty($key)){
-			throw new Exception('No key given to getExpressionMarkers()', 1340714264);
+			throw new \Tesseract\Tesseract\Exception\Exception(
+				'No key given to getExpressionMarkers()',
+				1340714264
+			);
 		}
 
 			// Defines empty array.
@@ -651,11 +675,12 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 	}
 
 	/**
-	 * If found, returns markers, of type global template variable
+	 * Returns markers, of type global template variable.
+	 *
 	 * Global template variable can be ###TOTAL_RECORDS### ###SUBTOTAL_RECORDS###
 	 *
-	 * @param	string	$content: HTML content
-	 * @return	 string	$content: transformed HTML content
+	 * @param string $content HTML content
+	 * @return string Transformed HTML content
 	 */
 	protected function getGlobalVariablesMarkers($content) {
 		$markers = array();
@@ -669,7 +694,7 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 		if (preg_match('/#{3}RECORD_OFFSET#{3}/isU', $content)) {
 			$page = $this->getCurrentPage();
 
-				// Computes the record offset
+			// Computes the record offset
 			$recordOffset = ($page + 1) * $this->filter['limit']['max'];
 			if ($recordOffset > $this->structure['totalCount']) {
 				$recordOffset = $this->structure['totalCount'];
@@ -680,7 +705,7 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 		if (preg_match('/#{3}START_AT#{3}/isU', $content)) {
 			$page = $this->getCurrentPage();
 
-				// Computes the record offset
+			// Computes the record offset
 			$recordOffset = ($page + 1) * $this->filter['limit']['max'];
 			if ($recordOffset > $this->structure['totalCount']) {
 				$recordOffset = $this->structure['totalCount'];
@@ -690,7 +715,7 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 		if (preg_match('/#{3}STOP_AT#{3}/isU', $content)) {
 			$page = $this->getCurrentPage();
 
-				// Computes the record offset
+			// Computes the record offset
 			$stop_at = ($page + 1) * $this->filter['limit']['max'];
 			if ($stop_at > $this->structure['totalCount']) {
 				$stop_at = $this->structure['totalCount'];
@@ -701,7 +726,7 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 	}
 
 	/**
-	 * Gets the current page for pagination from the controller
+	 * Gets the current page for pagination from the controller.
 	 *
 	 * @return int
 	 */
@@ -709,36 +734,35 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 		try {
 			$page = $this->controller->getControllerArgumentValue('page');
 		}
-		catch (tx_tesseract_exception $e) {
+		catch (\Tesseract\Tesseract\Exception\Exception $e) {
 			$page = 0;
 		}
 		return $page;
 	}
 
 	/**
-	 * This method is used to get a value from inside a multi-dimensional array or object
-	 * NOTE: this code is largely inspired by tslib_content::getGlobal()
+	 * Gets a value from inside a multi-dimensional array or object.
+	 *
+	 * NOTE: this code is largely inspired by \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer::getGlobal().
 	 *
 	 * @param mixed $source Array or object to look into
 	 * @param string $indices "Path" of indices inside the multi-dimensional array, of the form index1|index2|...
-	 * @throws Exception
+	 * @throws \Tesseract\Tesseract\Exception\Exception
 	 * @return mixed Whatever value was found in the array
 	 */
 	protected function getValueFromArray($source, $indices) {
 		if (empty($indices)) {
-			throw new Exception('No key given for source');
+			throw new \Tesseract\Tesseract\Exception\Exception('No key given for source');
 		}
 		else {
-			$indexList = t3lib_div::trimExplode('|', $indices);
+			$indexList = GeneralUtility::trimExplode('|', $indices);
 			$value = $source;
 			foreach ($indexList as $key) {
 				if (is_object($value) && isset($value->$key)) {
 					$value = $value->$key;
-				}
-				elseif (is_array($value) && isset($value[$key])) {
+				} elseif (is_array($value) && isset($value[$key])) {
 					$value = $value[$key];
-				}
-				else {
+				} else {
 					$value = ''; // no value found
 				}
 			}
@@ -747,10 +771,10 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 	}
 
 	/**
-	 * Handles the page browser
+	 * Handles the page browser.
 	 *
-	 * @param	string	$content HTML code
-	 * @return	string	$content transformed HTML code
+	 * @param string $content HTML code
+	 * @return string Transformed HTML code
 	 */
 	protected function processPageBrowser($content) {
 		$pattern = '/#{3}PAGE_BROWSER#{3}|#{3}PAGEBROWSER#{3}/isU';
@@ -787,7 +811,7 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 
 				// Debug pagebrowse
 				if (isset($GLOBALS['_GET']['debug']['pagebrowse']) && isset($GLOBALS['TYPO3_MISC']['microtime_BE_USER_start'])) {
-					t3lib_utility_Debug::debug($conf);
+					\TYPO3\CMS\Core\Utility\DebugUtility::debug($conf);
 				}
 
 				$this->localCObj->start(array(), '');
@@ -804,14 +828,14 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 	}
 
 	/**
-	 * Processe the function PAGE_STATUS
+	 * Processe the function PAGE_STATUS.
 	 *
-	 * @param	string	$content HTML code
-	 * @return	string	$content transformed HTML code if the datastructure is *not* empty.
+	 * @param string $content HTML code
+	 * @return string Transformed HTML code if the datastructure is *not* empty.
 	 */
 	protected function checkPageStatus($content) {
 
-			// Check for the PAGE_STATUS() pattern
+		// Check for the PAGE_STATUS() pattern
 		$pattern = '/PAGE_STATUS\((.+)\)/isU';
 		if ($this->structure['count'] == 0 && preg_match_all($pattern, $content, $matches, PREG_SET_ORDER)) {
 			foreach($matches as $match) {
@@ -827,7 +851,7 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 				if (isset($_match[1])) {
 					if (substr($_match[1], 0, 4) == 'pid:') {
 
-						/** @var $contentObject tslib_cObj */
+						/** @var $contentObject \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer */
 						$contentObject = $GLOBALS['TSFE']->cObj;
 						$config = array(
 							'returnLast' => 'url',
@@ -886,10 +910,10 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 	}
 
 	/**
-	 * Pre processes the <!--IF(###MARKER### == '')-->, puts a '' around the marker, if needed
+	 * Pre processes the <!--IF(###MARKER### == '')-->, puts a '' around the marker, if needed.
 	 *
-	 * @param	string	$content HTML code
-	 * @return	string	$content transformed HTML code
+	 * @param string $content HTML code
+	 * @return string Transformed HTML code
 	 */
 	protected function preProcessIF($content) {
 
@@ -938,15 +962,16 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 
 	/**
 	 * Adds a LOOP marker of first level, if it does not exist and close according to the table name.
+	 *
 	 * E.g. <!--ENDLOOP--> becomes <!--ENDLOOP(tablename)-->
 	 * This additional information allows a better cutting out of the template.
 	 *
-	 * @param	string	$content HTML code
-	 * @return	string	$content transformed HTML code
+	 * @param string $content HTML code
+	 * @return string $content Transformed HTML code
 	 */
 	protected function processLOOP($content) {
 
-			// Matches the LOOP(table) with offset
+		// Matches the LOOP(table) with offset
 		$pattern = '/<!-- *LOOP *\((.+)\) *-->/isU';
 		if (preg_match_all($pattern, $content, $loopMatches, PREG_OFFSET_CAPTURE)) {
 			preg_match_all('/<!-- *ENDLOOP *-->/isU', $content, $endLoopMatches, PREG_OFFSET_CAPTURE);
@@ -968,14 +993,14 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 				} // end for ENDLOOP
 			} // end for LOOP
 
-				// Builds replacement array
+			// Builds replacement array
 			$patterns = array();
 			$replacements = array();
 			for ($index = 0; $index < $numberOfMatches; $index ++) {
 				$patterns[$index] = '/<!-- *ENDLOOP *-->/isU';
 				$replacements[$index] = '<!--ENDLOOP(' . $endLoopMatches[0][$index][2] . ')-->';
 			}
-				// Replacement with limit 1
+			// Replacement with limit 1
 			$content = preg_replace($patterns, $replacements, $content, 1);
 		}
 
@@ -987,11 +1012,12 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 	}
 
 	/**
-	 * Pre processes the template function LIMIT, UPPERCASE, LOWERCASE, UPPERCASE_FIRST, COUNT
+	 * Pre-processes the template function LIMIT, UPPERCASE, LOWERCASE, UPPERCASE_FIRST, COUNT.
+	 *
 	 * Makes them recognizable by wrapping them with !--### ###--
 	 *
-	 * @param	string	$content HTML code
-	 * @return	string	$content transformed HTML code
+	 * @param string $content HTML code
+	 * @return string Transformed HTML code
 	 */
 	protected function preProcessFUNCTIONS($content) {
 		foreach ($this->functions as $function) {
@@ -1013,11 +1039,12 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 	}
 
 	/**
-	 * Post processes the <!--IF(###MARKER### == '')-->
-	 * Evaluates the condition and replaces the content when necessary
+	 * Post processes the <!--IF(###MARKER### == '')-->.
 	 *
-	 * @param	string	$content HTML code
-	 * @return	string	$content transformed HTML code
+	 * Evaluates the condition and replaces the content when necessary.
+	 *
+	 * @param string $content HTML code
+	 * @return string Transformed HTML code
 	 */
 	protected function postProcessIF($content) {
 		$pattern = '/(<!-- *IF *\( *(.+)\) *-->)(.+)(<!-- *ENDIF *-->)/isU';
@@ -1077,7 +1104,7 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 							'templatedisplay',
 							sprintf('Error evaluating expression "%s"', $evaluation),
 							'',
-							t3lib_FlashMessage::WARNING
+							FlashMessage::WARNING
 						);
 					}
 				}
@@ -1110,8 +1137,8 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 	/**
 	 * Handles the function: LIMIT, UPPERCASE, LOWERCASE, UPPERCASE_FIRST.
 	 *
-	 * @param	string	$content HTML code
-	 * @return	string	$content transformed HTML code
+	 * @param string $content HTML code
+	 * @return string Transformed HTML code
 	 */
 	function postProcessFUNCTIONS($content) {
 		foreach ($this->functions as $function) {
@@ -1201,11 +1228,11 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 	}
 
 	/**
-	 * Usful method that shorten a text according to the parameter $limit.
+	 * Shortens a text according to the parameter $limit.
 	 *
-	 * @param	string	$text: the input text
-	 * @param	int		$limit: the limit of words
-	 * @return	string	$text that has been shorten
+	 * @param string $text Input text
+	 * @param int $limit Words limit
+	 * @return string Shortened text
 	 */
 	protected function limit($text, $limit) {
 		$text = strip_tags($text, '<br><br/><br />');
@@ -1219,7 +1246,8 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 	}
 
 	/**
-	 * Analyses the template code and build a structure of type array
+	 * Analyses the template code and build a structure of type array.
+	 *
 	 * This method is called recursively whenever a LOOP is found.
 	 *
 	 * Synopsis of the structure
@@ -1266,7 +1294,6 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 
 					// Makes sure the subParCode does not contain LOOP (means EMPTY content does not belong to this LOOP)
 					if (!preg_match('/<!-- *LOOP/isU', $subPartCode)) {
-
 
 						$_emptyLoopsTemplate = $_match[0][0];
 						$_emptyLoops = $_match[1][0];
@@ -1328,11 +1355,11 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 	/**
 	 * Looks up for a value in a sds.
 	 *
-	 * @param	array	$sds: standard data structure
-	 * @param	int		$index: the position in the array
-	 * @param	string	$table: the name of the table
-	 * @param	string	$field: the name of the field
-	 * @return	string	$value: if no value is found return NULL
+	 * @param array $sds Standard data structure
+	 * @param int $index The position in the array
+	 * @param string $table The name of the table
+	 * @param string $field The name of the field
+	 * @return string If no value is found, returns NULL
 	 */
 	protected function getValueFromStructure(&$sds, $index, $table, $field) {
 
@@ -1364,8 +1391,8 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 	/**
 	 * Initializes language label and stores the lables for a possible further use.
 	 *
-	 * @param	$sds	$sds: standard data structure
-	 * @return	void
+	 * @param $sds $sds Standard data structure
+	 * @return void
 	 */
 	protected function setLabelMarkers(&$sds) {
 		if (!isset($this->labelMarkers[$sds['name']]) && !empty($sds['header'])) {
@@ -1379,10 +1406,10 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 	}
 
 	/**
-	 * Returns an array that contains LABEL
+	 * Returns an array that contains LABEL.
 	 *
-	 * @param	string	$name: corresponds to a table name.
-	 * @return	array	$markers
+	 * @param string $name Corresponds to a table name.
+	 * @return array $markers
 	 */
 	protected function getLabelMarkers($name) {
 		$markers = array();
@@ -1478,7 +1505,7 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 			// Means there is a LOOP in a LOOP
 			if (!empty($templateStructure['loops'])) {
 
-					// TRAVERSES (SUB) TEMPLATE STRUCTURE
+				// TRAVERSES (SUB) TEMPLATE STRUCTURE
 				foreach ($templateStructure['loops'] as &$subTemplateStructure) {
 
 					$foundSubSds = array();
@@ -1487,7 +1514,7 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 						$foundSubSds = $sdsSubtables[$subTemplateStructure['table']];
 					}
 
-						// Transform if $foundSubSds is valid subsds
+					// Transform if $foundSubSds is valid subsds
 					if (!empty($foundSubSds)) {
 						$__content = $this->getContent($subTemplateStructure, $foundSubSds, $sds['records'][$index], $fieldMarkers, $totalfieldMarkers);
 						$_content = str_replace($subTemplateStructure['template'], $__content, $_content);
@@ -1499,15 +1526,14 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 						$__content = $this->getEmptyValue($subTemplateStructure, $fieldMarkers);
 						$_content = str_replace($subTemplateStructure['template'], $__content, $_content);
 					} // end else
-					$loop++;
 				} // end foreach template structure
 			} // end if
 
-				// Merges array(FIELD, LABEL, COUNTER)
+			// Merges array(FIELD, LABEL, COUNTER)
 			$this->fieldMarkers = array_merge($fieldMarkers, $totalfieldMarkers, $this->getLabelMarkers($sds['name']), array('###COUNTER###' => $index), $this->counter);
 
 				// Substitutes content
-			$content .= t3lib_parsehtml::substituteMarkerArray($_content, $this->fieldMarkers);
+			$content .= HtmlParser::substituteMarkerArray($_content, $this->fieldMarkers);
 
 		} // end for (records)
 
@@ -1516,9 +1542,9 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 
 	/**
 	 *
-	 * @param	array	$templateStructure
-	 * @param	array	$markers
-	 * @return	string
+	 * @param array $templateStructure
+	 * @param array $markers
+	 * @return string
 	 */
 	protected function getEmptyValue(&$templateStructure, $markers = array()) {
 		$content = '';
@@ -1530,7 +1556,7 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 			$this->conf += array('parseEmptyLoops' => 0);
 			$parseEmptyLoops = $this->conf['parseEmptyLoops'];
 			if ((boolean) $parseEmptyLoops) {
-				$content = t3lib_parsehtml::substituteMarkerArray($templateStructure['content'], $markers);
+				$content = HtmlParser::substituteMarkerArray($templateStructure['content'], $markers);
 
 				// Removes remaining ###FIELD###
 				$content = preg_replace('/#{3}FIELD.+#{3}/isU','',$content);
@@ -1540,10 +1566,10 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 	}
 
 	/**
-	 * Replaces the marker ###OBJECT.userDefined###
+	 * Replaces the marker ###OBJECT.userDefined###.
 	 *
-	 * @param	string	$content HTML code
-	 * @return	string	$content transformed HTML code
+	 * @param string $content HTML code
+	 * @return string Transformed HTML code
 	 */
 	protected function processOBJECTS($content) {
 		$fieldMarkers = array();
@@ -1551,11 +1577,12 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 			$fieldMarkers['###' . $key . '###'] = $this->getValue($datasource);
 		}
 
-		return t3lib_parsehtml::substituteMarkerArray($content, $fieldMarkers);
+		return HtmlParser::substituteMarkerArray($content, $fieldMarkers);
 	}
 
 	/**
-	 * Important method! Formats the $value given as input according to the $key.
+	 * Formats the $value given as input according to the $key.
+	 *
 	 * The variable $key will tell the type of $value. Then format the $value whenever there is TypoScript configuration.
 	 *
 	 * @param array $datasource Can be $this->datasourceObjects or $this->datasourceFields
@@ -1566,17 +1593,15 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 	protected function getValue(&$datasource, $value = '', &$sds = array()) {
 		$output = '';
 
-			// Checks if the page title needs to be changed
+		// Checks if the page title needs to be changed
 		$this->setPageTitle($datasource['configuration']);
 
-			// Get default rendering configuration for the given type
+		// Get default rendering configuration for the given type
 		$tsIndex = $datasource['type'] . '.';
-		$baseConfiguration = isset($this->conf['defaultRendering.'][$tsIndex]) ? $this->conf['defaultRendering.'][$tsIndex] : array();
-			// Merge base configuration with local configuration
+		$configuration = isset($this->conf['defaultRendering.'][$tsIndex]) ? $this->conf['defaultRendering.'][$tsIndex] : array();
+		// Merge base configuration with local configuration
 		if (is_array($datasource['configuration'])) {
-			$configuration = t3lib_div::array_merge_recursive_overrule($baseConfiguration, $datasource['configuration']);
-		} else {
-			$configuration = $baseConfiguration;
+			ArrayUtility::mergeRecursiveWithOverrule($configuration, $datasource['configuration']);
 		}
 		// Render element based on type
 		try {
@@ -1590,7 +1615,7 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 						$configuration['value'] = $value;
 					}
 
-					$output = $this->localCObj->TEXT($configuration);
+					$output = $this->localCObj->cObjGetSingle('TEXT', $configuration);
 					break;
 				case 'richtext':
 					// Override configuration as needed
@@ -1598,7 +1623,7 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 						$configuration['value'] = $value;
 					}
 
-					$output = $this->localCObj->TEXT($configuration);
+					$output = $this->localCObj->cObjGetSingle('TEXT', $configuration);
 					break;
 				case 'image':
 					// Override configuration as needed
@@ -1622,13 +1647,13 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 						$configuration['titleText'] = $this->localCObj->stdWrap($configuration['titleText'], $configuration['titleText.']);
 					}
 
-					$output = $this->localCObj->IMAGE($configuration);
+					$output = $this->localCObj->cObjGetSingle('IMAGE', $configuration);
 					if (empty($output)) {
 						$this->controller->addMessage(
 							$this->extKey,
 							'Image not found for marker: ' . $datasource['marker'],
 							'',
-							t3lib_FlashMessage::WARNING,
+							FlashMessage::WARNING,
 							$configuration
 						);
 					}
@@ -1638,7 +1663,7 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 					if (!isset($configuration['file'])) {
 						$configuration['file'] = $value;
 					}
-					$output = $this->localCObj->IMG_RESOURCE($configuration);
+					$output = $this->localCObj->cObjGetSingle('IMG_RESOURCE', $configuration);
 					break;
 				case 'media':
 					// Override configuration as needed
@@ -1653,11 +1678,11 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 					if (!isset($configuration['renderType'])) {
 						$configuration['renderType'] = 'auto';
 					}
-					$output = $this->localCObj->MEDIA($configuration);
+					$output = $this->localCObj->cObjGetSingle('MEDIA', $configuration);
 					break;
 				case 'files':
 					// NOTE: there's no default configuration that would make sense in this case
-					$output = $this->localCObj->FILES($configuration);
+					$output = $this->localCObj->cObjGetSingle('FILES', $configuration);
 					break;
 				case 'linkToDetail':
 					// Override configuration as needed
@@ -1726,7 +1751,7 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 					if (!isset($configuration['source'])) {
 						$configuration['source'] = $value;
 					}
-					$output = $this->localCObj->RECORDS($configuration);
+					$output = $this->localCObj->cObjGetSingle('RECORDS', $configuration);
 					break;
 				case 'user':
 					// Override configuration as needed
@@ -1752,24 +1777,33 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 						}
 					}
 					// Generates the user content
-					$output = $this->localCObj->USER($configuration);
+					$output = $this->localCObj->cObjGetSingle('USER', $configuration);
 					break;
 				default:
 					// Not a standard type, check if it matches a custom one
 					if (isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['templatedisplay']['types'][$datasource['type']]['class'])) {
-						$class = t3lib_div::makeInstance($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['templatedisplay']['types'][$datasource['type']]['class']);
-						$output = $class->render($value, $configuration, $this);
+						$class = GeneralUtility::makeInstance($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['templatedisplay']['types'][$datasource['type']]['class']);
+						if ($class instanceof CustomTypeInterface) {
+							$output = $class->render($value, $configuration, $this);
+						} else {
+							$this->controller->addMessage(
+								$this->extKey,
+								'Invalid custom class "' . $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['templatedisplay']['types'][$datasource['type']]['class'] . '" provided for marker: ' . $datasource['marker'],
+								'',
+								FlashMessage::ERROR
+							);
+						}
 					} else {
 						$this->controller->addMessage(
 							$this->extKey,
 							'Unknow object type "' . $datasource['type'] . '" for marker: ' . $datasource['marker'],
 							'',
-							t3lib_FlashMessage::ERROR
+							FlashMessage::ERROR
 						);
 					}
 			} // end switch
 		}
-		catch (Exception $e) {
+		catch (\Exception $e) {
 			$this->controller->addMessage(
 				$this->extKey,
 				sprintf(
@@ -1779,7 +1813,7 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 					$e->getCode()
 				),
 				'Rendering error',
-				t3lib_FlashMessage::WARNING,
+				FlashMessage::WARNING,
 				$configuration
 			);
 		}
@@ -1788,14 +1822,14 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 	}
 
 	/**
-	 * Extracts the filename of a path
+	 * Extracts the filename of a path.
 	 *
 	 * @param string $filepath The path to parse
 	 * @return string The filename
 	 */
 	protected function getFileName($filepath) {
 		$filename = '';
-		$fileInfo = t3lib_div::split_fileref($filepath);
+		$fileInfo = GeneralUtility::split_fileref($filepath);
 		if (isset($fileInfo['filebody'])) {
 			$filename = $fileInfo['filebody'];
 		}
@@ -1803,12 +1837,12 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 	}
 
 	/**
-	 * If found, returns markers, of type LLL
+	 * If found, returns markers, of type LLL.
 	 *
 	 * Example of marker: ###LLL:EXT:myextension/localang.xml:myLabel###
 	 *
-	 * @param	string	$content HTML code
-	 * @return	string	$content transformed HTML code
+	 * @param string $content HTML code
+	 * @return string Transformed HTML code
 	 */
 	protected function getLLLMarkers($content) {
 		$markers = array();
@@ -1862,38 +1896,32 @@ class tx_templatedisplay extends tx_tesseract_feconsumerbase {
 				$this->extKey,
 				'Markers and their replacement values',
 				'',
-				t3lib_FlashMessage::INFO,
+				FlashMessage::INFO,
 				$markers
 			);
 			$this->controller->addMessage(
 				$this->extKey,
 				'Template structure',
 				'',
-				t3lib_FlashMessage::INFO,
+				FlashMessage::INFO,
 				$templateStructure
 			);
 			$this->controller->addMessage(
 				$this->extKey,
 				'Received data structure',
 				'',
-				t3lib_FlashMessage::INFO,
+				FlashMessage::INFO,
 				$this->structure
 			);
 		}
 	}
 
 	/**
-	 * Return the local instance of tslib_content
+	 * Returns the local instance of \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer.
 	 *
-	 * @return	tslib_cObj
+	 * @return \TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer
 	 */
 	public function getLocalCObj() {
 		return $this->localCObj;
 	}
 }
-
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templatedisplay/class.tx_templatedisplay.php']){
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/templatedisplay/class.tx_templatedisplay.php']);
-}
-
-?>

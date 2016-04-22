@@ -2,22 +2,28 @@
 if (!defined ('TYPO3_MODE')) {
  	die ('Access denied.');
 }
-t3lib_extMgm::addUserTSConfig('
-	options.saveDocNew.tx_templatedisplay_displays=1
-');
 
-	// Register method with generic BE ajax calls handler
-	// (as from TYPO3 4.2)
-$GLOBALS['TYPO3_CONF_VARS']['BE']['AJAX']['templatedisplay::saveConfiguration'] = 'typo3conf/ext/templatedisplay/class.tx_templatedisplay_ajax.php:tx_templatedisplay_ajax->saveConfiguration';
-$GLOBALS['TYPO3_CONF_VARS']['BE']['AJAX']['templatedisplay::saveTemplate'] = 'typo3conf/ext/templatedisplay/class.tx_templatedisplay_ajax.php:tx_templatedisplay_ajax->saveTemplate';
+// Register method with generic BE ajax calls handler
+\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::registerAjaxHandler(
+	'templatedisplay::saveConfiguration',
+	'Tesseract\\Templatedisplay\\Ajax\\AjaxHandler->saveConfiguration'
+);
+\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::registerAjaxHandler(
+	'templatedisplay::saveTemplate',
+	'Tesseract\\Templatedisplay\\Ajax\\AjaxHandler->saveTemplate'
+);
 
-	// Register as Data Consumer service
-	// Note that the subtype corresponds to the name of the database table
-t3lib_extMgm::addService($_EXTKEY,  'dataconsumer' /* sv type */,  'tx_templatedisplay_dataconsumer' /* sv key */,
+// Register as Data Consumer service
+// Note that the subtype corresponds to the name of the database table
+\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addService(
+	'templatedisplay',
+	// Service type
+	'dataconsumer',
+	// Service key
+	'tx_templatedisplay_dataconsumer',
 	array(
-
-		'title' => 'Data Display Engine',
-		'description' => 'Generic Data Consumer for recordset-type data structures',
+		'title' => 'HTML-based Data Consumer',
+		'description' => 'Data Consumer for recordset-type data structures, based on HTML templates and markers',
 
 		'subtype' => 'tx_templatedisplay_displays',
 
@@ -28,12 +34,8 @@ t3lib_extMgm::addService($_EXTKEY,  'dataconsumer' /* sv type */,  'tx_templated
 		'os' => '',
 		'exec' => '',
 
-		'classFile' => t3lib_extMgm::extPath($_EXTKEY, 'class.tx_templatedisplay.php'),
-		'className' => 'tx_templatedisplay',
+		'className' => 'Tesseract\Templatedisplay\Component\DataConsumer',
 	)
 );
 
-if (strpos(TYPO3_version, '6') === 0) {
-	$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['GLOBAL']['softRefParser'][$_EXTKEY] = 'Tesseract\Templatedisplay\Service\SoftReferenceParser';
-}
-?>
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['GLOBAL']['softRefParser'][$_EXTKEY] = 'Tesseract\Templatedisplay\Service\SoftReferenceParser';

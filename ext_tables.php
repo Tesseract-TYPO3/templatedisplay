@@ -13,20 +13,20 @@ $iconRegistry->registerIcon(
         'tx_templatedisplay-display',
         \TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider::class,
         [
-            'source' => 'EXT:dataquery/Resources/Public/Icons/TemplateDisplay.png'
+            'source' => 'EXT:templatedisplay/Resources/Public/Icons/TemplateDisplay.png'
         ]
 );
 
 // Add context sensitive help (csh) for this table
 \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr(
 	'tx_templatedisplay_displays',
-	\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath($_EXTKEY) . 'Resources/Private/Language/locallang_csh_txtemplatedisplaydisplays.xml'
+	\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath($_EXTKEY) . 'Resources/Private/Language/locallang_csh_txtemplatedisplaydisplays.xlf'
 );
 
 // Add a wizard for adding a data consumer
 $addTemplateDisplayWizard = array(
 	'type' => 'script',
-	'title' => 'LLL:EXT:templatedisplay/Resources/Private/Language/locallang_db.xml:wizards.add_templatedisplay',
+	'title' => 'LLL:EXT:templatedisplay/Resources/Private/Language/locallang_db.xlf:wizards.add_templatedisplay',
 	'script' => 'wizard_add.php',
 	'module' => array(
 		'name' => 'wizard_add'

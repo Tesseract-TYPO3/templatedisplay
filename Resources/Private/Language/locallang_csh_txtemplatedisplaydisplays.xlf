@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" datatype="plaintext" original="messages" date="2016-04-22T12:52:51Z" product-name="templatedisplay">
+		<header/>
+		<body>
+			<trans-unit id=".alttitle" xml:space="preserve">
+				<source>Template-based Display</source>
+			</trans-unit>
+			<trans-unit id=".description" xml:space="preserve">
+				<source>Template-based display are Data Consumers for Tesseract that use HTML template with a maker syntax close to the one used by TYPO3.</source>
+			</trans-unit>
+			<trans-unit id="hidden.description" xml:space="preserve">
+				<source>This field is not actively used inside Tesseract.</source>
+			</trans-unit>
+			<trans-unit id="hidden.details" xml:space="preserve">
+				<source>
+				This field is not considered by the existing components of Tesseract. It could be used to give a visual indication of an obsolete filter.
+				May be used actively in the future or remove altogether.
+			</source>
+			</trans-unit>
+			<trans-unit id="title.description" xml:space="preserve">
+				<source>Some significant name or label for the template.</source>
+			</trans-unit>
+			<trans-unit id="mappings.alttitle" xml:space="preserve">
+				<source>HTML template</source>
+			</trans-unit>
+			<trans-unit id="mappings.description" xml:space="preserve">
+				<source>The template for the rendering.</source>
+			</trans-unit>
+			<trans-unit id="mappings.syntax" xml:space="preserve">
+				<source>
+				The HTML template is used for the rendering of the data coming from the Data Provider. The HTML can be typed directly into this field or a file can be referenced with the following syntax:
+
+				FILE:fileadmin/templates/tesseract/foo.html
+
+				The base syntax involves markers similar to those used in traditional TYPO3 templates. The most useful elements are the loops, which will iterate on all elements from a given table, and the field markers which can be mapped to a given field from the table. Please refer to the manual for more information.
+			</source>
+			</trans-unit>
+			<trans-unit id="mappings.image" xml:space="preserve">
+				<source>EXT:templatedisplay/Resources/Public/images/mappings_screenshot.png</source>
+			</trans-unit>
+			<trans-unit id="mappings.image_descr" xml:space="preserve">
+				<source>A typical template, with a variety of markers</source>
+			</trans-unit>
+			<trans-unit id="description.description" xml:space="preserve">
+				<source>Some significant description for the template.</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

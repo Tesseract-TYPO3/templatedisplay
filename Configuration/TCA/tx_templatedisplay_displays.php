@@ -3,7 +3,7 @@ if (!defined ('TYPO3_MODE')) 	die ('Access denied.');
 
 return array(
 	'ctrl' => array(
-		'title' => 'LLL:EXT:templatedisplay/Resources/Private/Language/locallang_db.xml:tx_templatedisplay_displays',
+		'title' => 'LLL:EXT:templatedisplay/Resources/Private/Language/locallang_db.xlf:tx_templatedisplay_displays',
 		'label' => 'title',
 		'descriptionColumn' => 'description',
 		'tstamp' => 'tstamp',
@@ -25,7 +25,7 @@ return array(
 	'columns' => array(
 		'hidden' => array(
 			'exclude' => 1,
-			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.hidden',
+			'label' => 'LLL:EXT:lang/locallang_general.xlf:LGL.hidden',
 			'config' => array(
 				'type' => 'check',
 				'default' => '0'
@@ -33,7 +33,7 @@ return array(
 		),
 		'title' => array(
 			'exclude' => 0,
-			'label' => 'LLL:EXT:templatedisplay/Resources/Private/Language/locallang_db.xml:tx_templatedisplay_displays.title',
+			'label' => 'LLL:EXT:templatedisplay/Resources/Private/Language/locallang_db.xlf:tx_templatedisplay_displays.title',
 			'config' => array(
 				'type' => 'input',
 				'size' => '30',
@@ -42,7 +42,7 @@ return array(
 		),
 		'description' => array(
 			'exclude' => 0,
-			'label' => 'LLL:EXT:templatedisplay/Resources/Private/Language/locallang_db.xml:tx_templatedisplay_displays.description',
+			'label' => 'LLL:EXT:templatedisplay/Resources/Private/Language/locallang_db.xlf:tx_templatedisplay_displays.description',
 			'config' => array(
 				'type' => 'text',
 				'cols' => '40',
@@ -51,7 +51,7 @@ return array(
 		),
 		'template' => array(
 			'exclude' => 0,
-			'label' => 'LLL:EXT:templatedisplay/Resources/Private/Language/locallang_db.xml:tx_templatedisplay_displays.template',
+			'label' => 'LLL:EXT:templatedisplay/Resources/Private/Language/locallang_db.xlf:tx_templatedisplay_displays.template',
 			'config' => array(
 				'type' => 'text',
 				'cols' => '40',
@@ -61,7 +61,7 @@ return array(
 		),
 		'mappings' => array(
 			'exclude' => 0,
-			'label' => 'LLL:EXT:templatedisplay/Resources/Private/Language/locallang_db.xml:tx_templatedisplay_displays.mappings',
+			'label' => 'LLL:EXT:templatedisplay/Resources/Private/Language/locallang_db.xlf:tx_templatedisplay_displays.mappings',
 			'config' => array(
 				'type' => 'user',
 				'userFunc' => 'Tesseract\\Templatedisplay\\UserFunction\\CustomFormEngine->mappingField',

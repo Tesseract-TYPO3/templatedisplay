@@ -29,7 +29,7 @@ The syntax is as follows:
 .. code-block:: php
 
 	$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['templatedisplay']['types']['tx_test_mytype'] = array(
-		'label' => 'LLL:EXT:' . $_EXTKEY . '/locallang.xml:mytype',
+		'label' => 'LLL:EXT:' . $_EXTKEY . '/Resources/Private/Language/locallang.xlf:mytype',
 		'icon'  => 'EXT:' . $_EXTKEY . '/mytype.png',
 		'class' => 'Tesseract\\Templatedisplay\\RenderingType\\PhoneType'
 	);

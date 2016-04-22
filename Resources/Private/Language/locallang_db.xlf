@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" datatype="plaintext" original="messages" date="2016-04-22T12:53:00Z" product-name="templatedisplay">
+		<header/>
+		<body>
+			<trans-unit id="tx_templatedisplay_displays" xml:space="preserve">
+				<source>Template-based Display</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.title" xml:space="preserve">
+				<source>Title</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.description" xml:space="preserve">
+				<source>Description</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.mappings" xml:space="preserve">
+				<source>Mappings</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.template" xml:space="preserve">
+				<source>HTML Template</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.noTemplateFoundError" xml:space="preserve">
+				<source>
+Change this content by clicking on tab &quot;HTML&quot;.
+
+Then, you can:
+
+- insert inline HTML
+- load a file, FILE:fileadmin/templates/plugins/tesseract/news/list_of_news.html
+
+
+			</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.type" xml:space="preserve">
+				<source>Type</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.unknown" xml:space="preserve">
+				<source>Unknown</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.raw" xml:space="preserve">
+				<source>Raw text (no transformation)</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.text" xml:space="preserve">
+				<source>Text</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.richtext" xml:space="preserve">
+				<source>Rich text (HTML)</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.image" xml:space="preserve">
+				<source>Image</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.imageResource" xml:space="preserve">
+				<source>Image Resource</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.media" xml:space="preserve">
+				<source>Media</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.files" xml:space="preserve">
+				<source>FAL references</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.records" xml:space="preserve">
+				<source>Records</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.linkToDetail" xml:space="preserve">
+				<source>URL to detail</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.linkToPage" xml:space="preserve">
+				<source>URL to page</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.linkToFile" xml:space="preserve">
+				<source>URL to file</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.user" xml:space="preserve">
+				<source>User Function</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.debug" xml:space="preserve">
+				<source>Debug (extension devlog must be installed)</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.debug_markers" xml:space="preserve">
+				<source>Debug markers</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.debug_template_structure" xml:space="preserve">
+				<source>Debug template structure</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.debug_data_structure" xml:space="preserve">
+				<source>Debug data structure</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.email" xml:space="preserve">
+				<source>Email</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.showJson" xml:space="preserve">
+				<source>Show JSON</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.editHtml" xml:space="preserve">
+				<source>HTML</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.mapping" xml:space="preserve">
+				<source>Mapping</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.fields" xml:space="preserve">
+				<source>Fields</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.types" xml:space="preserve">
+				<source>Types</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.configuration" xml:space="preserve">
+				<source>Typoscript configuration</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.insertDefaultConfiguration" xml:space="preserve">
+				<source>Insert default configuration</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.saveFieldConfiguration" xml:space="preserve">
+				<source>Save field configuration</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.pagebrowser" xml:space="preserve">
+				<source>Page Browser Config</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.pagebrowser_tpl" xml:space="preserve">
+				<source>HTML template</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.pagebrowser_showmore" xml:space="preserve">
+				<source>Show more pages</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.pagebrowser_showless" xml:space="preserve">
+				<source>Show less pages</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.pagebrowser_pagesbefore" xml:space="preserve">
+				<source># pages before</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.pagebrowser_pagesafter" xml:space="preserve">
+				<source># pages after</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.fileNotFound" xml:space="preserve">
+				<source>File not found at</source>
+			</trans-unit>
+			<trans-unit id="tx_templatedisplay_displays.imported" xml:space="preserve">
+				<source>imported</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

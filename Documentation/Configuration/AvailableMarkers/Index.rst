@@ -66,7 +66,7 @@ LLL
 ~~~
 
 Name
-  ###LLL:EXT:myExtension/locallang.xml:myKey###
+  ###LLL:EXT:myExtension/Resources/Private/Language/locallang.xlf:myKey###
 
 Description
   When no TCA is provided or an external string must be translated, use

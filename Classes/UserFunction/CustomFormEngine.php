@@ -331,7 +331,7 @@ class CustomFormEngine {
 	 * @param string $key Key of the label
 	 */
 	private function getLL($key){
-		$langReference = 'LLL:EXT:templatedisplay/Resources/Private/Language/locallang_db.xml:';
+		$langReference = 'LLL:EXT:templatedisplay/Resources/Private/Language/locallang_db.xlf:';
 		return $GLOBALS['LANG']->sL($langReference . $key);
 	}
 

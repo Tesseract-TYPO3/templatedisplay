@@ -1,6 +1,7 @@
 2016-04-22 Francois Suter (Cobweb)  <typo3@cobweb.ch>
 
 	* Cleaned up code, resolves #75867
+	* Moved language files to XLIFF, resolves #75868
 
 2015-09-27 Francois Suter (Cobweb)  <typo3@cobweb.ch>
 

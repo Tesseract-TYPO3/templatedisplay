@@ -109,7 +109,7 @@ class AjaxHandler {
 					}
 					catch (\Exception $e) {
 						// The file reference could not be resolved, issue an error message
-						$template = $GLOBALS['LANG']->sL('LLL:EXT:templatedisplay/Resources/Private/Language/locallang_db.xml:tx_templatedisplay_displays.fileNotFound') . ' ' . $template;
+						$template = $GLOBALS['LANG']->sL('LLL:EXT:templatedisplay/Resources/Private/Language/locallang_db.xlf:tx_templatedisplay_displays.fileNotFound') . ' ' . $template;
 					}
                 }
 

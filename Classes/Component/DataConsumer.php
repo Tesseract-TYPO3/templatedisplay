@@ -169,7 +169,7 @@ class DataConsumer extends FrontendConsumerBase
      *
      * @param array $conf TypoScript configuration for the extension
      */
-    public function setTypoScript($conf)
+    public function setTypoScript(array $conf)
     {
         $this->conf = $conf;
     }

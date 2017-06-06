@@ -19,6 +19,7 @@ use TYPO3\CMS\Backend\Form\Element\UserElement;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
+use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Service\MarkerBasedTemplateService;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -164,8 +165,8 @@ class CustomFormEngine
 			';
 
             // Get the page renderer object from the BE module
-            /** @var \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer */
-            $pageRenderer = $GLOBALS['SOBE']->doc->getPageRenderer();
+            /** @var PageRenderer $pageRenderer */
+            $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
             // Load the necessary JavaScript
             // @todo: migrate away from Prototype
             $pageRenderer->addJsFile($extensionRelativePath . 'Resources/Public/JavaScript/Library/prototype.js');

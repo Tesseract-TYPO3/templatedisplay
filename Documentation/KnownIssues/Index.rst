@@ -12,6 +12,19 @@ Known issues
 ------------
 
 
+.. _known-issues-typo3-v8:
+
+Compatibility with TYPO3 CMS 8
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+There's a known issue in TYPO3 CMS 8, whereby clicking on a label when editing a Template Display
+record in the backend will make all other labels in the form disappear.
+This could not be fixed simply and will be solved by moving from Prototype to jQuery,
+which will be done in a later release.
+
+Reference: https://github.com/Tesseract-TYPO3/templatedisplay/issues/1
+
+
 .. _known-issues-nested-if:
 
 Nested IF markers don't work

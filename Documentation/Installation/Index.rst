@@ -28,8 +28,10 @@ Requirements
 
 Extension "templatedisplay" requires the PHP Simple XML library.
 
-Versions 2.0.0 and above require TYPO3 6.2 or more.
+Versions 2.0.0 and above require TYPO3 CMS 7 or more.
 
+
+.. _installation-upgrade:
 
 Upgrading
 ^^^^^^^^^
